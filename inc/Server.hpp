@@ -5,21 +5,18 @@
 class Server
 {
   public:
-	Server(int argc, char **argv);
-	~Server() = default;
-	void run();
+	static void start(int argc, char **argv);
+	static void run();
 
   private:
-	int _sock;
-	int _port;
-	std::vector<pollfd> _fds;
-	std::vector<Client> _clients;
-	std::string _password;
+	static int _sock;
+	static std::vector<pollfd> _fds;
+	static std::vector<Client> _clients;
+	static std::string _password;
 
-	void startServer();
-	void serverLoop();
-	void cleanup();
+	static void serverLoop();
+	static void cleanup();
 
 	// Utilities
-	void parseInput(std::string &buffer, Client &client); // should be in a diiferent parser class
+	static void parseInput(std::string &buffer, Client &client);
 };

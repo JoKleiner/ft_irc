@@ -1,25 +1,28 @@
 #include "Server.hpp"
 
-Server::Server(int argc, char **argv) : _password(argv[2])
-{
-	if (argc != 3)
-		throw std::invalid_argument("Error: server start with './ircserv <port> <password>'");
-	if (!std::regex_match(argv[1], std::regex("(\\d{4,5})")))
-		throw std::invalid_argument("Error: Port not in correct Form");
-	_port = std::stoi(argv[1]);
-	if (_port < 1024 || _port > 49151)
-		throw(std::runtime_error("Port should be in between 1024-49151"));
-}
+int Server::_sock = 0;
+std::string Server::_password = "";
+std::vector<pollfd> Server::_fds;
+std::vector<Client> Server::_clients;
 
 void Server::run()
 {
-	startServer();
 	serverLoop();
 	cleanup();
 }
 
-void Server::startServer()
+void Server::start(int argc, char **argv)
 {
+	int port;
+	if (argc != 3)
+		throw std::invalid_argument("Error: server start with './ircserv <port> <password>'");
+	if (!std::regex_match(argv[1], std::regex("(\\d{4,5})")))
+		throw std::invalid_argument("Error: Port not in correct Form");
+	port = std::stoi(argv[1]);
+	if (port < 1024 || port > 49151)
+		throw(std::runtime_error("Port should be in between 1024-49151"));
+	_password = argv[2];
+
 	// Create socket (File Descriptor): This socket can accept connections over the network.
 	_sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -36,7 +39,7 @@ void Server::startServer()
 	sockaddr_in addr{};
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port = htons(_port);
+	addr.sin_port = htons(port);
 	// INADDR_ANY: listen on all network interfaces (e.g. localhost and external IPs).
 	// htons(8080): Port 8080, converted to network byte order (Big Endian).
 
@@ -48,7 +51,7 @@ void Server::startServer()
 
 	_fds.push_back({_sock, POLLIN, 0});
 	_clients.push_back(Client(_sock));
-	std::cout << "Server runs. Client access with: 'nc localhost " << _port << "', Password: '" << _password << "'" << std::endl;
+	std::cout << "Server runs. Client access with: 'nc localhost " << port << "', Password: '" << _password << "'" << std::endl;
 }
 
 void Server::serverLoop()
@@ -104,7 +107,6 @@ void Server::cleanup()
 	close(_sock);
 }
 
-// should be in a different parser class
 void Server::parseInput(std::string &input, Client &client)
 {
 	std::string word;

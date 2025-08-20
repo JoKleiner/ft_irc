@@ -2,6 +2,7 @@
 
 Client::Client(int fd) : m_pw(false), m_fds_num(fd){}
 
+//should NOT be in the client, should be in the server
 void Client::check_pw(std::string password, std::string word)
 {
 	if(password == word)

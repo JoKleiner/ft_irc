@@ -5,8 +5,8 @@ int main(int argc, char **argv)
 {
 	try
 	{
-		Server server(argc, argv);
-		server.run();
+		Server::start(argc, argv);
+		Server::run();
 	}
 	catch(const std::exception& e)
 	{
