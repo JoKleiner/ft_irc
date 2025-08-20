@@ -103,9 +103,7 @@ int main(int argc, char **argv) {
 
                     if (buffer.find('\n') == std::string::npos)
                     {
-                        std::cout << "Client disconnected (FD: " << fds[i].fd << ")\n";
-                        close(fds[i].fd);
-                        fds.erase(fds.begin() + i);
+                        clients[i].kick_user(i, fds);
                         i--;
                     }
                     else
@@ -113,10 +111,19 @@ int main(int argc, char **argv) {
                         std::string word;
                         std::istringstream ss(buffer);
                         std::getline(ss, word, ' ');
+                        if(word.back() == '\n')
+                            word.pop_back();
                         if(word == "PASS")
                         {
                             std::getline(ss, word, ' ');
-                            clients[i].check_pw(argv[2], word);
+                            if(word.empty())
+                                clients[i].kick_user(i, fds);
+                            else
+                            {
+                                if(word.back() == '\n')
+                                    word.pop_back();
+                                clients[i].check_pw(argv[2], word, i, fds, clients);
+                            }
                         }
                         if(word == "USER")
                             clients[i].set_user();
