@@ -10,7 +10,7 @@ OBJ_DIR := obj
 INC_DIR := inc
 
 VPATH := src
-SRCS := main.cpp Client.cpp
+SRCS := main.cpp Client.cpp Server.cpp
 
 OBJS := $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.cpp=.o)))
 TOTAL := $(words $(SRCS))

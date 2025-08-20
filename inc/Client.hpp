@@ -9,16 +9,19 @@
 #include <vector>
 #include <regex>
 #include <sstream>
+#include <fcntl.h>
 
 class Client
 {
   public:
-	Client( std::vector<pollfd> fds, size_t i);
+	Client(int fds);
 	~Client() = default;
 
 	void check_pw(std::string password, std::string first_word);
 	void set_user();
 	void set_nick();
+	int getFd() const;
+	std::string getMessage() const;
 
   private:
 	bool m_pw;
