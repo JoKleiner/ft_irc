@@ -1,12 +1,14 @@
 
 NAME = ircserv
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++17
+CXXFLAGS = -std=c++17
+CXXFLAGS += -MMD -MP
+#-Werror -Wextra -Wall 
 
 OBJ_DIR := obj
 
 VPATH := src
-SRCS := main.cpp
+SRCS := main.cpp Client.cpp
 
 OBJS := $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.cpp=.o)))
 TOTAL := $(words $(SRCS))

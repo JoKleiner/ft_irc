@@ -1,25 +1,10 @@
-#include <iostream>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <vector>
-#include <regex>
 
-/*
-    TCP server using the POSIX Socket API
-*/
+#include "../inc/Client.hpp"
 
-int main(int argc, char **argv) {
-
-    if(argc != 3)
-        return(std::cerr << "Error: server start with './ircserv <port> <password>'" << std::endl, 1);
-
-    if (!std::regex_match(argv[1], std::regex("(\\d{4}|\\d{5})")))
-		return(std::cerr << "Error: Port not in correct Form" << std::endl, 1);
-   
-    
+int start_server(char **argv, int *sock)
+{
     int port;
+
     try
     {
         port = std::stoi(argv[1]);
@@ -31,20 +16,17 @@ int main(int argc, char **argv) {
         return(std::cerr << e.what() << std::endl, 1);
     }
 
-
-
     // Create socket (File Descriptor): This socket can accept connections over the network.
-    int sock = socket(AF_INET, SOCK_STREAM, 0);     
+    *sock = socket(AF_INET, SOCK_STREAM, 0);     
     
-
-    int opt = 1;
     /*
         int opt = 1: SO_REUSEADDR should be enabled
         setsockopt() expects 4 bytes. Therefore, use an integer instead of a bool.
         SOL_SOCKET: Category of the option (here: socket level).
         SO_REUSEADDR: Allows restarting the server without waiting for the port to be released.
     */
-    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    int opt = 1;
+    setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     
 
     // Initialize a structure containing the IP address and port.
@@ -55,19 +37,33 @@ int main(int argc, char **argv) {
     // INADDR_ANY: listen on all network interfaces (e.g. localhost and external IPs).   
     // htons(8080): Port 8080, converted to network byte order (Big Endian).         
 
-
     // Bind the socket to the configured address
-    bind(sock, (sockaddr*)&addr, sizeof(addr));
-
+    bind(*sock, (sockaddr*)&addr, sizeof(addr));
 
     // Tell the socket to listen with a backlog of "SOMAXCONN" connections. SOMAXCONN = 128 max connections
-    listen(sock, SOMAXCONN);
+    listen(*sock, SOMAXCONN);
 
     std::cout << "Server runs. Client access with: 'nc localhost " << port << "', Password: '" << argv[2] << "'" << std::endl;
+    return(0);
+}
 
+
+int main(int argc, char **argv) {
+
+    if(argc != 3)
+        return(std::cerr << "Error: server start with './ircserv <port> <password>'" << std::endl, 1);
+
+    if (!std::regex_match(argv[1], std::regex("(\\d{4}|\\d{5})")))
+		return(std::cerr << "Error: Port not in correct Form" << std::endl, 1);
+
+    int sock;
+    if(start_server(argv, &sock))
+        return(1);
 
     std::vector<pollfd> fds;
     fds.push_back({sock, POLLIN, 0});
+
+    std::vector<Client> clients;
 
     while (true)
     {
@@ -81,7 +77,7 @@ int main(int argc, char **argv) {
             continue;
 
         // Iterate through all file descriptors
-        for (size_t i = 0; i < fds.size(); ++i)
+        for (size_t i = 0; i < fds.size(); i++)
         {
             if (fds[i].revents)
             {
@@ -90,21 +86,44 @@ int main(int argc, char **argv) {
                     int client = accept(sock, nullptr, nullptr);
                     std::cout << "New client connected (FD: " << client << ")\n";
                     fds.push_back({client, POLLIN, 0});
+                    Client client_class(fds, i);
+                    clients.push_back(client_class);
                 }
                 else
                 {
-                    char buf[100] = {0};
-                    ssize_t bytes = read(fds[i].fd, buf, sizeof(buf) - 1);
-                    if (bytes <= 0)
+                    ssize_t bytes = 1;
+                    std::string buffer;
+                    
+                    while (buffer.find('\n') == std::string::npos && bytes > 0)
+                    {
+                        char buff[5] = {0};
+                        bytes = read(fds[i].fd, buff, sizeof(buff) - 1);
+                        buffer = buffer + buff;
+                    }
+
+                    if (buffer.find('\n') == std::string::npos)
                     {
                         std::cout << "Client disconnected (FD: " << fds[i].fd << ")\n";
                         close(fds[i].fd);
                         fds.erase(fds.begin() + i);
-                        --i;
+                        i--;
                     }
                     else
                     {
-                        std::cout << "Client (FD " << fds[i].fd << "): " << buf;
+                        std::string word;
+                        std::istringstream ss(buffer);
+                        std::getline(ss, word, ' ');
+                        if(word == "PASS")
+                        {
+                            std::getline(ss, word, ' ');
+                            clients[i].check_pw(argv[2], word);
+                        }
+                        if(word == "USER")
+                            clients[i].set_user();
+                        if(word == "NICK")
+                            clients[i].set_nick();
+                        
+                        std::cout << "Client (FD " << fds[i].fd << "): " << buffer << std::flush;
                         send(fds[i].fd, "Message received\n", sizeof("Message received\n"), 0);
                     }
                 }
