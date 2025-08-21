@@ -1,26 +1,45 @@
 
+#include "../inc/irc.hpp"
 #include "../inc/Client.hpp"
 
-Client::Client( std::vector<pollfd> fds, size_t i) : m_pw(false), m_fds_num(fds[i].fd){}
+std::string g_server_password;
 
-void Client::kick_user(size_t i, std::vector<pollfd> &fds)
+Client::Client() : m_pw(false){}
+
+void Client::kick_user(size_t i, std::vector<pollfd> &vec_pfds)
 {
-	std::cout << "Client disconnected (FD: " << fds[i].fd << ")\n";
-	close(fds[i].fd);
-	fds.erase(fds.begin() + i);
+	std::cout << "Client disconnected (FD: " << vec_pfds[i].fd << ")" << std::endl;
+	close(vec_pfds[i].fd);
+	vec_pfds.erase(vec_pfds.begin() + i);
 }
 
-void Client::check_pw(std::string password, std::string word, size_t i, std::vector<pollfd> &fds, std::vector<Client> clients)
+void Client::set_pw(std::string input, size_t i, std::vector<pollfd> &vec_pfds, std::vector<Client> vec_client)
 {
-	if(password == word)
-		m_pw = true;
+	if(input.empty() || input != g_server_password)
+		vec_client[i].kick_user(i, vec_pfds);
 	else
-		clients[i].kick_user(i, fds);
+		m_pw = true;
 }
 
-void Client::set_user()
+void Client::set_user(std::vector<std::string> vec_token, size_t i, std::vector<pollfd> &vec_pfds, std::vector<Client> vec_client)
 {
+	if(!m_pw)
+		vec_client[i].kick_user(i, vec_pfds);
+	else
+	{
+		std::string name;
+		for (size_t i = 1; i < vec_token.size(); i++)
+		{
+			if(!name.empty())
+				name += ' ';
+			name += vec_token[i];
+		}
+		m_user = name;
+	}
+}
 
+std::string Client::get_user() {
+	return(m_user);
 }
 
 void Client::set_nick()

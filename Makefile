@@ -7,7 +7,7 @@ CXXFLAGS += -MMD -MP
 OBJ_DIR := obj
 
 VPATH := src
-SRCS := main.cpp Client.cpp
+SRCS := main.cpp irc.cpp Client.cpp
 
 OBJS := $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.cpp=.o)))
 TOTAL := $(words $(SRCS))

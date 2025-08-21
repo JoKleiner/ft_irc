@@ -1,29 +1,24 @@
 
 #pragma once
 
-#include <iostream>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <vector>
-#include <regex>
-#include <sstream>
+#include "irc.hpp"
 
 class Client
 {
   public:
-	Client( std::vector<pollfd> fds, size_t i);
+	Client();
+	Client(const Client &other) = default;
+	Client &operator=(const Client &other) = default;
 	~Client() = default;
 
-	void check_pw(std::string password, std::string word, size_t i, std::vector<pollfd> &fds, std::vector<Client> clients);
-	void set_user();
+	void set_pw(std::string word, size_t i, std::vector<pollfd> &vec_pfds, std::vector<Client> vec_client);
+	void set_user(std::vector<std::string> vec_token, size_t i, std::vector<pollfd> &vec_pfds, std::vector<Client> vec_client);
+	std::string get_user();
 	void set_nick();
-	void kick_user(size_t i, std::vector<pollfd> &fds);
+	void kick_user(size_t i, std::vector<pollfd> &vec_pfds);
 
   private:
 	bool m_pw;
-	int m_fds_num;
 	std::string m_user;
 	std::string m_nick;
 };
