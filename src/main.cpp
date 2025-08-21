@@ -3,7 +3,8 @@
 #include <regex>
 
 /*
-	socket can accept connections over the network. 
+	socket can accept connections over the network.
+    AF_INET: IPv4
 
     int opt = 1: SO_REUSEADDR should be enabled
     setsockopt() expects 4 bytes. Therefore, use an integer instead of a bool.
