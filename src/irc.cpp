@@ -33,9 +33,8 @@ static std::vector<std::string> token_message(std::string client_mssg)
 
 	while (ss >> token)
 		vec_token.push_back(token);
-	return(vec_token);
+	return (vec_token);
 }
-
 
 static void message_handling(std::vector<Client> &vec_client, std::vector<pollfd> &vec_pfds, size_t i, std::vector<std::string> vec_token)
 {
@@ -44,7 +43,7 @@ static void message_handling(std::vector<Client> &vec_client, std::vector<pollfd
 	if (vec_token[0] == "USER")
 		vec_client[i].set_user(vec_token, i, vec_pfds, vec_client);
 	if (vec_token[0] == "NICK")
-		vec_client[i].set_nick();
+		vec_client[i].set_nick(vec_token, i, vec_pfds, vec_client);
 }
 
 static void client_message(std::vector<pollfd> &vec_pfds, std::vector<Client> &vec_client, size_t i)

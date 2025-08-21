@@ -14,7 +14,8 @@ class Client
 	void set_pw(std::string word, size_t i, std::vector<pollfd> &vec_pfds, std::vector<Client> vec_client);
 	void set_user(std::vector<std::string> vec_token, size_t i, std::vector<pollfd> &vec_pfds, std::vector<Client> vec_client);
 	std::string get_user();
-	void set_nick();
+	void set_nick(std::vector<std::string> vec_token, size_t i, std::vector<pollfd> &vec_pfds, std::vector<Client> vec_client);
+	std::string get_nick();
 	void kick_user(size_t i, std::vector<pollfd> &vec_pfds);
 
   private:
