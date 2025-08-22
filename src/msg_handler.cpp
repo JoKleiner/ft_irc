@@ -1,5 +1,6 @@
 
 #include "irc.hpp"
+#include "Client.hpp"
 
 void message_handling(std::vector<Client> &vec_client, std::vector<pollfd> &vec_pfds, size_t i, std::vector<std::string> vec_token)
 {
@@ -9,12 +10,12 @@ void message_handling(std::vector<Client> &vec_client, std::vector<pollfd> &vec_
 		vec_client[i].set_user(vec_token, i, vec_pfds, vec_client);
 	if (vec_token[0] == "NICK")
 		vec_client[i].set_nick(vec_token, i, vec_pfds, vec_client);
+	if (vec_token[0] == "QUIT")
+	 	vec_client[i].kick_user(i, vec_pfds);
 	// if (vec_token[0] == "JOIN")
-	// 	vec_client[i].
+	// 	
 	// if (vec_token[0] == "PRIVMSG")
-	// 	vec_client[i].
-	// if (vec_token[0] == "QUIT")
-	// 	vec_client[i].
+	// 	
 	// if (vec_token[0] == "PING")
-	// 	vec_client[i].
+	// 	
 }
