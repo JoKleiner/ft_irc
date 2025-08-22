@@ -1,6 +1,5 @@
 
-#include "../inc/irc.hpp"
-#include "../inc/Client.hpp"
+#include "irc.hpp"
 
 std::string g_server_password;
 

@@ -1,5 +1,5 @@
 
-#include "../inc/irc.hpp"
+#include "irc.hpp"
 #include <regex>
 
 /*

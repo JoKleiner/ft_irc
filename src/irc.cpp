@@ -1,6 +1,5 @@
 
-#include "../inc/irc.hpp"
-#include "../inc/Client.hpp"
+#include "irc.hpp"
 
 static void connect_new_client(int sock, std::vector<pollfd> &vec_pfds, std::vector<Client> &vec_client)
 {

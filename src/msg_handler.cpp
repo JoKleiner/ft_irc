@@ -1,6 +1,5 @@
 
-#include "../inc/irc.hpp"
-#include "../inc/Client.hpp"
+#include "irc.hpp"
 
 void message_handling(std::vector<Client> &vec_client, std::vector<pollfd> &vec_pfds, size_t i, std::vector<std::string> vec_token)
 {
