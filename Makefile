@@ -10,7 +10,7 @@ OBJ_DIR := obj
 INC_DIR := inc
 
 VPATH := src
-SRCS := main.cpp irc.cpp Client.cpp msg_handler.cpp
+SRCS := main.cpp Client.cpp msg_handler.cpp Server.cpp
 
 OBJS := $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.cpp=.o)))
 TOTAL := $(words $(SRCS))
@@ -19,7 +19,7 @@ COUNT := 0
 GREEN := \033[32m
 RED := \033[31m
 RESET := \033[0m
-CLEAR_LINE := \033[2K\r
+CLEAR_LINE := \033[A\033[2K
 
 all: $(NAME)
 
@@ -30,8 +30,11 @@ $(NAME): $(OBJS)
 
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(OBJ_DIR)
+	@if [ $(COUNT) -eq 0 ]; then \
+		printf "\n"; \
+	fi
 	@$(eval COUNT := $(shell expr $(COUNT) + 1))
-	@printf "$(CLEAR_LINE)Compile ($(COUNT)/$(TOTAL)) $<";
+	@printf "$(CLEAR_LINE)Compile ($(COUNT)/$(TOTAL)) $<\n";
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:

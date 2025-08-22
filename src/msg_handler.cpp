@@ -1,17 +1,16 @@
 
-#include "irc.hpp"
-#include "Client.hpp"
+#include "Server.hpp"
 
-void message_handling(std::vector<Client> &vec_client, std::vector<pollfd> &vec_pfds, size_t i, std::vector<std::string> vec_token)
+void Server::message_handling(std::vector<std::string> vec_token)
 {
 	if (vec_token[0] == "PASS")
-		vec_client[i].set_pw(vec_token[1], i, vec_pfds, vec_client);
+		_clients[_iter].set_pw(vec_token[1], _iter);
 	if (vec_token[0] == "USER")
-		vec_client[i].set_user(vec_token, i, vec_pfds, vec_client);
+		_clients[_iter].set_user(vec_token, _iter);
 	if (vec_token[0] == "NICK")
-		vec_client[i].set_nick(vec_token, i, vec_pfds, vec_client);
+		_clients[_iter].set_nick(vec_token, _iter);
 	if (vec_token[0] == "QUIT")
-	 	vec_client[i].kick_user(i, vec_pfds);
+		Server::kick_user(_iter);
 	// if (vec_token[0] == "JOIN")
 	// 	
 	// if (vec_token[0] == "PRIVMSG")
