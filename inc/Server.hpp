@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "Client.hpp"
+#include "Channel.hpp"
 
 class Server
 {
@@ -25,6 +26,7 @@ class Server
 	static int _sock;
 	static std::vector<pollfd> _fds;
 	static std::vector<Client> _clients;
+	static std::vector<Channel> _channels;
 	static std::string _password;
 
 	static void serverLoop();
@@ -36,4 +38,3 @@ class Server
 	static void client_message();
 	static void message_handling(std::vector<std::string> vec_token);
 };
-
