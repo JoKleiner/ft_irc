@@ -5,7 +5,7 @@
 
 class Client
 {
-  public:
+public:
 	Client(int fd);
 	Client(const Client &other) = default;
 	Client &operator=(const Client &other) = default;
@@ -20,7 +20,7 @@ class Client
 
 	bool read_client_message(std::string &client_mssg);
 
-  private:
+private:
 	bool m_pw;
 	int m_fds_num;
 	std::string m_user;
