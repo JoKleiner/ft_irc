@@ -12,10 +12,7 @@ void Server::client_message()
 {
 	std::string client_mssg;
 	if(!_clients[_iter].read_client_message(client_mssg))
-	return ;
-
-	std::cout << "Client (FD " << _fds[_iter].fd << "): " << client_mssg << std::flush;
-	SEND(_fds[_iter].fd, "Message received\n");
+		return ;
 
 	if (client_mssg.empty())
 	{

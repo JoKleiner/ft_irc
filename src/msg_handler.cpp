@@ -29,6 +29,9 @@ void Server::switchi(std::vector<std::string> token)
 
 void Server::message_handling(std::string client_mssg)
 {
+    std::cout << "Client (FD " << _fds[_iter].fd << "): " << client_mssg << std::flush;
+	SEND(_fds[_iter].fd, "Message received\n");
+    
     auto lines = split(client_mssg, "\r\n");
 
     for (size_t i = 0; i < lines.size(); i++)
