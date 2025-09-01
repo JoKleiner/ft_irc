@@ -36,7 +36,7 @@ public:
 	static bool checkUsername(const std::string &un);
 	static void kick_user(size_t user);
 	static void send_channel_list(size_t iter);
-	static void channel_join_reqest(std::string line);
+	static void channel_join_reqest(std::vector<std::string> token);
 	static void leave_channel(Channel chan);
 
 private:

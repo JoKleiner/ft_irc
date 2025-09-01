@@ -13,7 +13,8 @@ struct client_speci
 
 class Channel
 {
-public:
+  public:
+	Channel() = default;
 	Channel(std::string name, std::string client_name);
 	~Channel() = default;
 
@@ -21,7 +22,7 @@ public:
 	std::string get_channel_name();
 	void leave(size_t iter);
 
-private:
+  private:
 	std::string m_name;
 	std::string m_topic;
 	std::string m_mode;

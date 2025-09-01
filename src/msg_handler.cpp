@@ -19,7 +19,7 @@ void Server::switchi(std::vector<std::string> token)
             case USER: _clients[_iter].set_user(token, _iter);  break;
             case QUIT: Server::kick_user(_iter);                break;
             case LIST: Server::send_channel_list(_iter);        break;
-            case JOIN: Server::channel_join_reqest(token[1]);   break;
+            case JOIN: Server::channel_join_reqest(token);      break;
             // case ct_hash("PART"):  xxx; break;
             // case ct_hash("PRIVMSG"): xxx;  break;
             // case ct_hash("PING"):  xxx; break;

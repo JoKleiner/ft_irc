@@ -40,17 +40,30 @@ void Server::leave_channel(Channel chan)
 	// send(_clients[_iter].get_fd(), msg.c_str(), sizeof(msg), 0);
 }
 
-void Server::channel_join_reqest(std::string line)
+
+void Server::channel_join_reqest(std::vector<std::string> token)
 {
-	std::vector<std::string> splits = split(line, ",");
-	// if(_vec_token[1][0] == '0')
-	// {
-	// 	for (auto &chan : _channels)
-	// 	{
-	// 		leave_channel(chan.second);
-	// 	}
-	// }
-	// if(_vec_token[1][0] == '#', _vec_token[1][0] == '&', _vec_token[1][0] == '!')
+	if(token[0] == "0")
+	{
+		// for (auto &chan : _channels)
+		// {
+		// 	leave_channel(chan.second);
+		// }
+		return ;
+	}
+	std::vector<std::string> splits = split(token[0], ",");
+	
+	for(size_t i = 0; i < splits.size(); i++)
+	{
+		if(_channels.find(splits[i].substr(1)) == _channels.end())
+		{
+			Channel chan(splits[i], _clients[_iter].get_nick());
+			_channels[chan.get_channel_name()] = chan;
+		}
+		else
+		{
+		}
+	}
 }
 
 // #, +, &, ! -Channel prefix

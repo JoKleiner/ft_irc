@@ -1,11 +1,20 @@
 
 #include "Channel.hpp"
 
-Channel::Channel(std::string name, std::string client_name): m_name(name)
+Channel::Channel(std::string name, std::string client_name)
 {
+	m_name = name.substr(1);
 	client_speci cur_client;
-	cur_client.channel_creator = true;
-	cur_client.rights = "owner";
+	if (name[0] == '+')
+	{
+		cur_client.channel_creator = false;
+		cur_client.rights = "regular";
+	}
+	else
+	{
+		cur_client.channel_creator = true;
+		cur_client.rights = "operators";
+	}
 	m_cl_list[client_name] = cur_client;
 }
 
@@ -19,11 +28,11 @@ void Channel::join(std::vector<std::string> vec_token, std::map<std::string, Cha
 {
 	(void)vec_token;
 	(void)_channels;
-
 }
 
-std::string Channel::get_channel_name(){
-	return(m_name);
+std::string Channel::get_channel_name()
+{
+	return (m_name);
 }
 
 // operator
