@@ -14,16 +14,30 @@ Channel::Channel(std::string name, Client client)
 		cur_client.channel_creator = true;
 		cur_client.rights = "operators";
 	}
-	m_name = name.substr(1);
+	m_name = name;
 	m_cl_list[client.get_nick()] = cur_client;
 	std::string out = "Created channel: " + m_name + "\n";
 	SEND(client.get_fd(), out.c_str());
 }
 
-void Channel::leave(size_t iter)
+std::map<std::string, client_speci> Channel::get_cha_cl_list(){
+	return(m_cl_list);
+}
+
+void Channel::leave_channel(Client client)
 {
-	(void)iter;
-	// m_cl_list.erase(m_cl_list.first);
+	if(m_cl_list.find(client.get_nick()) != m_cl_list.end())
+	{
+		std::string out = "You left channel: " + this->get_channel_name() + "\n";
+
+		m_cl_list.erase(client.get_nick());
+		SEND(client.get_fd(), out.c_str());
+	}
+	else
+	{
+		std::string out = "You are not in channel: " + this->get_channel_name() + "\n";
+		SEND(client.get_fd(), out.c_str());
+	}
 }
 
 void Channel::join(Client client, std::string channel_pw)

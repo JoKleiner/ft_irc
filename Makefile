@@ -5,6 +5,7 @@ CXXFLAGS = -std=c++17
 CXXFLAGS += -Werror -Wextra -Wall
 CXXFLAGS += -MMD -MP
 CXXFLAGS += -I $(INC_DIR)
+#CXXFLAGS += -g -fsanitize=address
 
 OBJ_DIR := obj
 INC_DIR := inc

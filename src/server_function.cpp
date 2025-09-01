@@ -27,24 +27,42 @@ void Server::kick_user(size_t user)
 
 void Server::send_channel_list(size_t iter)
 {
+	std::string msg = "\nList of open channels:\n";
 	for (auto chan : _channels)
 	{
-		std::string msg = chan.second.get_channel_name() + "\n";
-		send(_clients[iter].get_fd(), msg.c_str(), sizeof(msg), 0);
+		msg = msg + chan.second.get_channel_name() + "\n";
 	}
+	msg = msg + "\n";
+	SEND(_clients[iter].get_fd(), msg.c_str());
 }
 
-void Server::leave_channel(Channel chan)
+void Server::leave_channel(std::vector<std::string> token)
 {
-	chan.leave(_iter);
-	// send(_clients[_iter].get_fd(), msg.c_str(), sizeof(msg), 0);
+	std::vector<std::string> channel_splits = split(token[1], ",");
+
+	for (size_t i = 0; i < channel_splits.size(); i++)
+	{
+		auto channel_map_point = _channels.find(channel_splits[i]);
+		if (channel_map_point != _channels.end())
+		{
+			Channel chan = channel_map_point->second;
+			chan.leave_channel(_clients[_iter]);
+			if (chan.get_cha_cl_list().empty())
+				_channels.erase(channel_map_point->first);
+		}
+		else
+		{
+			std::string out = "Not existing channel: " + channel_splits[i] + "\n";
+			SEND(_clients[_iter].get_fd(), out.c_str());
+		}
+	}
 }
 
 void Server::create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits)
 {
 	Channel chan(channel_splits[i], _clients[_iter]);
 
-	if(i < password_splits.size() && !password_splits[i].empty())
+	if (i < password_splits.size() && !password_splits[i].empty())
 		chan.set_channel_pw(password_splits[i]);
 
 	_channels.insert({chan.get_channel_name(), chan});
@@ -63,32 +81,36 @@ bool Server::check_channel_syntax(std::vector<std::string> channel_splits, size_
 
 void Server::channel_join_reqest(std::vector<std::string> token)
 {
-	if(token[1].empty())
-		return ;
-	if(token[1] == "0")
+	if (token[1].empty())
+		return;
+	if (token[1] == "0")
 	{
-		// for (auto &chan : _channels)
-		// {
-		// 	leave_channel(chan.second);
-		// }
-		return ;
+		for(auto it = _channels.begin() ; it != _channels.end();)
+		{
+			it->second.leave_channel(_clients[_iter]);
+			if (it->second.get_cha_cl_list().empty())
+				it = _channels.erase(it);
+			else
+				it++;
+		}
+		return;
 	}
 
 	std::vector<std::string> channel_splits = split(token[1], ",");
 	std::vector<std::string> password_splits;
-	if(!token[2].empty())
+	if (token.size() >= 3)
 		password_splits = split(token[2], ",");
-	for(size_t i = 0; i < channel_splits.size(); i++)
+	for (size_t i = 0; i < channel_splits.size(); i++)
 	{
-		if(!check_channel_syntax(channel_splits, i))
-			continue ;
-		auto chan = _channels.find(channel_splits[i].substr(1));
-		if(chan == _channels.end())
+		if (!check_channel_syntax(channel_splits, i))
+			continue;
+		auto chan = _channels.find(channel_splits[i]);
+		if (chan == _channels.end())
 			create_channel(channel_splits, i, password_splits);
 		else
 		{
 			std::string channel_pw;
-			if(i < password_splits.size() && !password_splits[i].empty())
+			if (i < password_splits.size() && !password_splits[i].empty())
 				channel_pw = password_splits[i];
 			chan->second.join(_clients[_iter], channel_pw);
 		}

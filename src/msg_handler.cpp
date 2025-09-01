@@ -20,9 +20,13 @@ void Server::switchi(std::vector<std::string> token)
             case QUIT: Server::kick_user(_iter);                break;
             case LIST: Server::send_channel_list(_iter);        break;
             case JOIN: Server::channel_join_reqest(token);      break;
-            // case ct_hash("PART"):  xxx; break;
-            // case ct_hash("PRIVMSG"): xxx;  break;
-            // case ct_hash("PING"):  xxx; break;
+            case PART: Server::leave_channel(token);            break;
+            // case PRIVMSG: xxx;  break;
+            // case KICK: xxx;  break;
+            // case INVITE: xxx;  break;
+            // case TOPIC: xxx;  break;
+            // case MODE: xxx;  break;
+            // case PING:  xxx; break;
             default: SEND(_fds[_iter].fd, "421\n"); break;
         }
 }

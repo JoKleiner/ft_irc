@@ -21,6 +21,10 @@
 #define JOIN ct_hash("JOIN")
 #define PART ct_hash("PART")
 #define PRIVMSG ct_hash("PRIVMSG")
+#define KICK ct_hash("KICK")
+#define INVITE ct_hash("INVITE")
+#define TOPIC ct_hash("TOPIC")
+#define MODE ct_hash("MODE")
 #define PING ct_hash("PING")
 
 std::vector<std::string> split(std::string str, std::string cha);
@@ -39,7 +43,7 @@ public:
 	static void kick_user(size_t user);
 	static void send_channel_list(size_t iter);
 	static void channel_join_reqest(std::vector<std::string> token);
-	static void leave_channel(Channel chan);
+	static void leave_channel(std::vector<std::string> token);
 	static void create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits);
 	static bool check_channel_syntax(std::vector<std::string> channel_splits, size_t i);
 

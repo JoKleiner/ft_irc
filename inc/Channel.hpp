@@ -23,6 +23,8 @@ class Channel
 	std::string get_channel_name();
 	void leave(size_t iter);
 	void set_channel_pw(std::string password);
+	void leave_channel(Client client);
+	std::map<std::string, client_speci> get_cha_cl_list();
 
   private:
 	std::string m_name;
