@@ -14,10 +14,13 @@ struct client_speci
 class Channel
 {
   public:
+	Channel() = default;
 	Channel(std::string name, std::string client_name);
-	~Channel();
+	~Channel() = default;
 
-	static void join(std::vector<std::string> vec_token);
+	void join(std::vector<std::string> vec_token, std::map<std::string, Channel> _channels);
+	std::string get_channel_name();
+	void leave(size_t iter);
 
   private:
 	std::string m_name;
@@ -25,5 +28,4 @@ class Channel
 	std::string m_mode;
 	std::string m_password;
 	std::map<std::string, client_speci> m_cl_list;
-
 };
