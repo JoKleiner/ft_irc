@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "Server.hpp"
 #include "Client.hpp"
 #include <map>
 #include <vector>
@@ -15,12 +16,13 @@ class Channel
 {
   public:
 	Channel() = default;
-	Channel(std::string name, std::string client_name);
+	Channel(std::string name, Client client);
 	~Channel() = default;
 
-	void join(std::vector<std::string> vec_token, std::map<std::string, Channel> _channels);
+	void join(Client client, std::string channel_pw);
 	std::string get_channel_name();
 	void leave(size_t iter);
+	void set_channel_pw(std::string password);
 
   private:
 	std::string m_name;

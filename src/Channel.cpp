@@ -1,9 +1,8 @@
 
 #include "Channel.hpp"
 
-Channel::Channel(std::string name, std::string client_name)
+Channel::Channel(std::string name, Client client)
 {
-	m_name = name.substr(1);
 	client_speci cur_client;
 	if (name[0] == '+')
 	{
@@ -15,7 +14,10 @@ Channel::Channel(std::string name, std::string client_name)
 		cur_client.channel_creator = true;
 		cur_client.rights = "operators";
 	}
-	m_cl_list[client_name] = cur_client;
+	m_name = name.substr(1);
+	m_cl_list[client.get_nick()] = cur_client;
+	std::string out = "Created channel: " + m_name + "\n";
+	SEND(client.get_fd(), out.c_str());
 }
 
 void Channel::leave(size_t iter)
@@ -24,15 +26,37 @@ void Channel::leave(size_t iter)
 	// m_cl_list.erase(m_cl_list.first);
 }
 
-void Channel::join(std::vector<std::string> vec_token, std::map<std::string, Channel> _channels)
+void Channel::join(Client client, std::string channel_pw)
 {
-	(void)vec_token;
-	(void)_channels;
+	if(channel_pw == m_password)
+	{
+		if(m_cl_list.find(client.get_nick()) != m_cl_list.end())
+		{
+			std::string out = "Client already in channel: " + this->get_channel_name() + "\n";
+			SEND(client.get_fd(), out.c_str());
+			return ;
+		}
+		client_speci client_spec;
+		client_spec.channel_creator = false;
+		client_spec.rights = "regular";
+		m_cl_list[client.get_nick()] = client_spec;
+
+		std::string out = "Joined channel: " + this->get_channel_name() + "\n";
+		SEND(client.get_fd(), out.c_str());
+	}
+	else
+	{
+		std::string out = "Error: wrong pw for channel: " + this->get_channel_name() + "\n";
+		SEND(client.get_fd(), out.c_str());
+	}
 }
 
-std::string Channel::get_channel_name()
-{
+std::string Channel::get_channel_name(){
 	return (m_name);
+}
+
+void Channel::set_channel_pw(std::string password){
+	m_password = password;
 }
 
 // operator

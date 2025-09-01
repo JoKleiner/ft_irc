@@ -12,7 +12,7 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 
-#define SEND(fd, x) send(fd, x, sizeof(x), 0)
+#define SEND(fd, mssg) send(fd, mssg, strlen(mssg), 0)
 #define PASS ct_hash("PASS")
 #define NICK ct_hash("NICK")
 #define USER ct_hash("USER")
@@ -26,6 +26,8 @@
 std::vector<std::string> split(std::string str, std::string cha);
 std::vector<std::string> token_message(std::string client_mssg);
 
+class Channel;
+
 class Server
 {
 public:
@@ -38,6 +40,8 @@ public:
 	static void send_channel_list(size_t iter);
 	static void channel_join_reqest(std::vector<std::string> token);
 	static void leave_channel(Channel chan);
+	static void create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits);
+	static bool check_channel_syntax(std::vector<std::string> channel_splits, size_t i);
 
 private:
 	static size_t _iter;
