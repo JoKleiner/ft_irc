@@ -12,7 +12,7 @@ bool Server::checkPassword(const std::string &pw){
 	return (pw == _password);
 }
 
-bool Server::checkUsername(const std::string &u_name)
+bool Server::checkNickname(const std::string &u_name)
 {
 	for (size_t i = 0; i < _clients.size(); ++i)
 	{

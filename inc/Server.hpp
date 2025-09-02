@@ -45,9 +45,6 @@ class Server
 	static bool checkPassword(const std::string &pw);
 	static bool checkNickname(const std::string &un);
 	static void server_kick(size_t user);
-	static void send_channel_list(size_t iter);
-	static void channel_join_reqest(std::vector<std::string> token);
-	static void leave_channel(Channel chan);
 
   private:
 	static size_t _iter;

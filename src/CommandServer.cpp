@@ -19,14 +19,14 @@ void Server::nick(size_t iter, std::vector<std::string> token)
 	else if (token.size() < 2)
 		SEND(_clients[iter].get_fd(), "431 :No nickname given\n\r");
 	else if (!std::regex_match(token[1], std::regex(FMT_NICKNAME)))
-		SEND(_clients[iter].get_fd(), ("432" + token[1] + " :Erroneous nickname").c_str());
+		SEND(_clients[iter].get_fd(), ("432" + token[1] + " :Erroneous nickname\n\r").c_str());
 	else if (!Server::checkNickname(token[1]))
-		SEND(_clients[iter].get_fd(), ("433" + token[1] + " :Nickname is already in use").c_str());
+		SEND(_clients[iter].get_fd(), ("433" + token[1] + " :Nickname is already in use\n\r").c_str());
 	else
 	{
 		_clients[iter].set_nick(token[1]);
 		if (_clients[iter].registered())
-			SEND(_clients[iter].get_fd(), ("001 Welcome to the Internet Relay Network " + _clients[iter].get_nick() + "!" + _clients[iter].get_user() + "@" + _clients[iter].get_addr()).c_str());
+			SEND(_clients[iter].get_fd(), ("001 Welcome to the Internet Relay Network " + _clients[iter].get_nick() + "!" + _clients[iter].get_user() + "@" + _clients[iter].get_addr() + "\n\r").c_str());
 	}
 }
 
@@ -46,7 +46,7 @@ void Server::user(size_t iter, std::vector<std::string> token)
 		{
 			_clients[iter].set_user(token[1], std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string { return a + " " + b; }));
 			if (_clients[iter].registered())
-				SEND(_clients[iter].get_fd(), ("001 Welcome to the Internet Relay Network " + _clients[iter].get_nick() + "!" + _clients[iter].get_user() + "@" + _clients[iter].get_addr()).c_str());
+				SEND(_clients[iter].get_fd(), ("001 Welcome to the Internet Relay Network " + _clients[iter].get_nick() + "!" + _clients[iter].get_user() + "@" + _clients[iter].get_addr() + "\n\r").c_str());
 		}
 	}
 }

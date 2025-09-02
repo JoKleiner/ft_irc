@@ -2,21 +2,6 @@
 #include "Server.hpp"
 #include <regex>
 
-bool Server::checkPassword(const std::string &pw)
-{
-	return (pw == _password);
-}
-
-bool Server::checkNickname(const std::string &un)
-{
-	for (size_t i = 0; i < _clients.size(); ++i)
-	{
-		if (_clients[i].get_nick() == un)
-			return (false);
-	}
-	return (true);
-}
-
 void Server::server_kick(size_t user)
 {
 	std::cout << "Client disconnected (FD: " << _fds[user].fd << ")" << std::endl;
