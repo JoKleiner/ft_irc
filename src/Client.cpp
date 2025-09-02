@@ -3,65 +3,34 @@
 
 std::string g_server_password;
 
-Client::Client(int fd) : m_pw(false), m_fds_num(fd){}
-
-void Client::set_pw(std::string input, size_t i)
+Client::Client(int fd) : m_pw(false), m_fds_num(fd), m_user(), m_nick()
 {
-	if (!Server::checkPassword(input))
-	{
-		send(m_fds_num, "ERROR :Password incorrect\n", sizeof("ERROR :Password incorrect\n"), 0);
-		Server::server_kick(i);
-	}
-	else
-		m_pw = true;
 }
 
-void Client::set_user(std::vector<std::string> vec_token, size_t i)
+void Client::set_pw(const bool &set)
 {
-	//USER <username> <hostname> <servername> :<realname>
-	if (!m_pw)
-		Server::server_kick(i);
-	else
-	{
-		std::string name;
-		for (size_t i = 1; i < vec_token.size(); i++)
-		{
-			if (!name.empty())
-				name += ' ';
-			name += vec_token[i];
-		}
-		m_user = name;
-	}
+	m_pw = set;
 }
 
-std::string Client::get_user(){
+void Client::set_user(std::string name, std::string namestr)
+{
+	// USER <user> <mode> <unused> <realname>
+	m_user = name;
+	m_userstring = namestr;
+}
+
+const std::string &Client::get_user() const
+{
 	return (m_user);
 }
 
-void Client::set_nick(std::vector<std::string> vec_token, size_t i)
+void Client::set_nick(const std::string &nick)
 {
-	if (!m_pw)
-		Server::server_kick(i);
-	else
-	{
-		std::string name;
-		for(size_t u = 1; u < vec_token.size(); u++)
-		{
-			if (!name.empty())
-				name += ' ';
-			name += vec_token[u];
-		}
-		if(!Server::checkUsername(name))
-		{
-			send(m_fds_num, "ERROR :Nick not available\n", sizeof("ERROR :Nick not available\n"), 0);
-			Server::server_kick(i);
-			return ;
-		}
-		m_nick = name;
-	}
+	m_nick = nick;
 }
 
-const std::string &Client::get_nick() const {
+const std::string &Client::get_nick() const
+{
 	return (m_nick);
 }
 
@@ -75,11 +44,32 @@ bool Client::read_client_message(std::string &client_mssg)
 		bytes = read(m_fds_num, buff, sizeof(buff) - 1);
 		client_mssg = client_mssg + buff;
 	}
-	if(bytes < 0)
+	if (bytes < 0)
 		return (false);
 	return (true);
 }
 
-const int &Client::get_fd() const {
+const int &Client::get_fd() const
+{
 	return (m_fds_num);
+}
+
+bool Client::registered() const
+{
+	return (m_pw && !m_nick.empty() && !m_user.empty());
+}
+
+const bool &Client::pw_set() const
+{
+	return (m_pw);
+}
+
+void Client::set_ip(const std::string &addr)
+{
+	m_addr = addr;
+}
+
+const std::string &Client::get_addr() const
+{
+	return (m_addr);
 }

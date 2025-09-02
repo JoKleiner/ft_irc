@@ -4,13 +4,17 @@
 #include <iostream>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <poll.h>
 #include <vector>
 #include <map>
 #include <sstream>
+#include <regex>
+#include <numeric>
 
 #include "Client.hpp"
 #include "Channel.hpp"
+#include "Format.hpp"
 
 #define SEND(fd, mssg) send(fd, mssg, strlen(mssg), 0)
 #define PASS ct_hash("PASS")
@@ -39,8 +43,11 @@ class Server
 	static void run();
 
 	static bool checkPassword(const std::string &pw);
-	static bool checkUsername(const std::string &u_name);
+	static bool checkNickname(const std::string &un);
 	static void server_kick(size_t user);
+	static void send_channel_list(size_t iter);
+	static void channel_join_reqest(std::vector<std::string> token);
+	static void leave_channel(Channel chan);
 
   private:
 	static size_t _iter;
@@ -50,6 +57,15 @@ class Server
 	static std::map<std::string, Channel> _channels;
 	static std::string _password;
 
+	// Commands
+	static void pass(size_t iter, std::vector<std::string> token);
+	static void nick(size_t iter, std::vector<std::string> token);
+	static void user(size_t iter, std::vector<std::string> token);
+	static void quit(size_t iter, std::vector<std::string> token);
+	static void list(size_t iter, std::vector<std::string> token);
+	static void join(size_t iter, std::vector<std::string> token);
+
+	// dont know yet
 	static void serverLoop();
 	static void cleanup();
 	// static void send_err();
