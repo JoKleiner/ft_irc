@@ -25,10 +25,13 @@ void Server::client_message()
 
 void Server::connect_new_client()
 {
-	int client = accept(_sock, nullptr, nullptr);
+	struct sockaddr_in cli_addr;
+	socklen_t clilen = sizeof(cli_addr);
+	int client = accept(_sock, (struct sockaddr*)&cli_addr, &clilen);
 	std::cout << "New client connected (FD: " << client << ")" << std::endl;
 	_fds.push_back({client, POLLIN, 0});
 	Client client_class(client);
+	client_class.set_ip(inet_ntoa(cli_addr.sin_addr));
 	_clients.push_back(client_class);
 }
 

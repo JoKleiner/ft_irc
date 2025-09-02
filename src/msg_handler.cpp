@@ -14,16 +14,16 @@ void Server::switchi(std::vector<std::string> token)
 {
     switch(ct_hash(token[0].c_str()))
         {
-            case PASS: _clients[_iter].set_pw(token[1], _iter); break;
-            case NICK: _clients[_iter].set_nick(token, _iter);  break;
-            case USER: _clients[_iter].set_user(token, _iter);  break;
-            case QUIT: Server::kick_user(_iter);                break;
-            case LIST: Server::send_channel_list(_iter);        break;
-            case JOIN: Server::channel_join_reqest(token);      break;
+            case PASS: Server::pass(_iter, token); break;
+            case NICK: Server::nick(_iter, token); break;
+            case USER: Server::user(_iter, token); break;
+            case QUIT: Server::quit(_iter, token); break;
+            case LIST: Server::list(_iter, token); break;
+            case JOIN: Server::join(_iter, token); break;
             // case ct_hash("PART"):  xxx; break;
             // case ct_hash("PRIVMSG"): xxx;  break;
             // case ct_hash("PING"):  xxx; break;
-            default: SEND(_fds[_iter].fd, "421\n"); break;
+            default: SEND(_fds[_iter].fd, ("421 " + token[0] + " :Unknown command\n\r"). c_str()); break;
         }
 }
 
