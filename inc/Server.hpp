@@ -55,12 +55,12 @@ class Server
 	static std::string _password;
 
 	// Commands
-	static void pass(size_t iter, std::vector<std::string> token);
-	static void nick(size_t iter, std::vector<std::string> token);
-	static void user(size_t iter, std::vector<std::string> token);
-	static void quit(size_t iter, std::vector<std::string> token);
-	static void list(size_t iter, std::vector<std::string> token);
-	static void join(size_t iter, std::vector<std::string> token);
+	static void pass(std::vector<std::string> token);
+	static void nick(std::vector<std::string> token);
+	static void user(std::vector<std::string> token);
+	static void quit(std::vector<std::string> token);
+	static void list(std::vector<std::string> token);
+	static void join(std::vector<std::string> token);
 
 	// dont know yet
 	static void serverLoop();
@@ -69,11 +69,10 @@ class Server
 	static void switchi(std::vector<std::string> token);
 	static void create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits);
 	static void leave_all_channel();
-	static void send_channel_list(size_t iter);
-	static void channel_join_reqest(std::vector<std::string> token);
 	static void leave_channel(std::vector<std::string> token);
 	static void privmsg(std::vector<std::string> token);
 	static void msg_channel(std::string channel, std::string msg);
+	static void msg_client(std::string cl_name, std::string msg);
 
 	// Utilities
 	static void iter_vec_pfds();
