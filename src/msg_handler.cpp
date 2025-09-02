@@ -14,12 +14,12 @@ void Server::switchi(std::vector<std::string> token)
 {
     switch(ct_hash(token[0].c_str()))
         {
-            case PASS: Server::pass(_iter, token);   break;
-            case NICK: Server::nick(_iter, token);   break;
-            case USER: Server::user(_iter, token);   break;
-            case QUIT: Server::quit(_iter, token);   break;
-            case LIST: Server::list(_iter, token);   break;
-            case JOIN: Server::join(_iter, token);   break;
+            case PASS: Server::pass(token);   break;
+            case NICK: Server::nick(token);   break;
+            case USER: Server::user(token);   break;
+            case QUIT: Server::quit(token);   break;
+            case LIST: Server::list(token);   break;
+            case JOIN: Server::join(token);   break;
             case PART: Server::leave_channel(token); break;
             case PRIVMSG: Server::privmsg(token);    break;
             // case ct_hash("PART"):  xxx; break;

@@ -35,7 +35,7 @@ void Server::leave_all_channel()
 	}
 }
 
-void Server::channel_join_reqest(std::vector<std::string> token)
+void Server::join(std::vector<std::string> token)
 {
 	if (token.size() < 2)
 		return;

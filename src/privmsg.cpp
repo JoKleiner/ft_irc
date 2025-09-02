@@ -2,6 +2,21 @@
 #include "Server.hpp"
 #include <regex>
 
+void Server::msg_client(std::string cl_name, std::string msg)
+{
+	for(auto &iter : _clients)
+	{
+		if (iter.get_nick() == cl_name)
+		{
+			std::string out = _clients[_iter].get_nick() +  ": " + msg + "\n\r";
+			SEND(iter.get_fd(), out.c_str());
+			return ;
+		}
+	}
+	std::string out = "401 \n\rERR_NOSUCHNICK\n\r";
+	SEND(_clients[_iter].get_fd(), out.c_str());
+}
+
 void Server::msg_channel(std::string channel, std::string msg)
 {
 	std::string cl_name = _clients[_iter].get_nick();
@@ -9,7 +24,7 @@ void Server::msg_channel(std::string channel, std::string msg)
 
 	if(_channels.find(channel) == _channels.end())
 	{
-		std::string out = "403 \n\rERR_NOSUCHCHANNEL\n";
+		std::string out = "403 \n\rERR_NOSUCHCHANNEL\n\r";
 		SEND(_clients[_iter].get_fd(), out.c_str());
 		return ;
 	}
@@ -19,11 +34,10 @@ void Server::msg_channel(std::string channel, std::string msg)
 
 	if(cl_list.find(cl_name) == cl_list.end())
 	{
-		std::string out = "404 \n\rRR_CANNOTSENDTOCHAN\n";
+		std::string out = "404 \n\rRR_CANNOTSENDTOCHAN\n\r";
 		SEND(_clients[_iter].get_fd(), out.c_str());
 		return ;
 	}
-
 	
 
 	(void)msg;
@@ -47,19 +61,19 @@ bool Server::check_privmsg_input(std::vector<std::string> token)
 	{
 		if (token.size() < 2 || token[1].find(':') != std::string::npos)
 		{
-			std::string out = "411 \n\rERR_NORECIPIENT\n";
+			std::string out = "411 \n\rERR_NORECIPIENT\n\r";
 			SEND(_clients[_iter].get_fd(), out.c_str());
 		}
 		else
 		{
-			std::string out = "412 \n\rERR_NOTEXTTOSEND\n";
+			std::string out = "412 \n\rERR_NOTEXTTOSEND\n\r";
 			SEND(_clients[_iter].get_fd(), out.c_str());
 		}
 		return false;
 	}
 	if(token[2].find(':') != 0)
 	{
-		std::string out = "412 \n\rERR_NOTEXTTOSEND\n";
+		std::string out = "412 \n\rERR_NOTEXTTOSEND\n\r";
 		SEND(_clients[_iter].get_fd(), out.c_str());
 		return false;
 	}
@@ -81,7 +95,7 @@ void Server::privmsg(std::vector<std::string> token)
 				msg_channel(msg_receiv[i], msg);
 				break;
 			default:
-				// ist ein Nick
+				msg_client(msg_receiv[i], msg);
 				break;
 		}
 	}

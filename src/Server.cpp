@@ -8,20 +8,6 @@ std::vector<pollfd> Server::_fds;
 std::vector<Client> Server::_clients;
 std::map<std::string, Channel> Server::_channels;
 
-bool Server::checkPassword(const std::string &pw){
-	return (pw == _password);
-}
-
-bool Server::checkNickname(const std::string &u_name)
-{
-	for (size_t i = 0; i < _clients.size(); ++i)
-	{
-		if (_clients[i].get_nick() == u_name)
-			return (false);
-	}
-	return (true);
-}
-
 void Server::client_message()
 {
 	std::string client_mssg;
