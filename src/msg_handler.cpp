@@ -17,11 +17,11 @@ void Server::switchi(std::vector<std::string> token)
             case PASS: _clients[_iter].set_pw(token[1], _iter); break;
             case NICK: _clients[_iter].set_nick(token, _iter);  break;
             case USER: _clients[_iter].set_user(token, _iter);  break;
-            case QUIT: Server::kick_user(_iter);                break;
+            case QUIT: Server::server_kick(_iter);                break;
             case LIST: Server::send_channel_list(_iter);        break;
             case JOIN: Server::channel_join_reqest(token);      break;
             case PART: Server::leave_channel(token);            break;
-            // case PRIVMSG: xxx;  break;
+            case PRIVMSG: Server::privmsg(token);               break;
             // case KICK: xxx;  break;
             // case INVITE: xxx;  break;
             // case TOPIC: xxx;  break;

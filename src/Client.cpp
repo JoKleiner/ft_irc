@@ -10,7 +10,7 @@ void Client::set_pw(std::string input, size_t i)
 	if (!Server::checkPassword(input))
 	{
 		send(m_fds_num, "ERROR :Password incorrect\n", sizeof("ERROR :Password incorrect\n"), 0);
-		Server::kick_user(i);
+		Server::server_kick(i);
 	}
 	else
 		m_pw = true;
@@ -20,7 +20,7 @@ void Client::set_user(std::vector<std::string> vec_token, size_t i)
 {
 	//USER <username> <hostname> <servername> :<realname>
 	if (!m_pw)
-		Server::kick_user(i);
+		Server::server_kick(i);
 	else
 	{
 		std::string name;
@@ -41,7 +41,7 @@ std::string Client::get_user(){
 void Client::set_nick(std::vector<std::string> vec_token, size_t i)
 {
 	if (!m_pw)
-		Server::kick_user(i);
+		Server::server_kick(i);
 	else
 	{
 		std::string name;
@@ -54,7 +54,7 @@ void Client::set_nick(std::vector<std::string> vec_token, size_t i)
 		if(!Server::checkUsername(name))
 		{
 			send(m_fds_num, "ERROR :Nick not available\n", sizeof("ERROR :Nick not available\n"), 0);
-			Server::kick_user(i);
+			Server::server_kick(i);
 			return ;
 		}
 		m_nick = name;

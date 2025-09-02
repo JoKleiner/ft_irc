@@ -34,20 +34,15 @@ class Channel;
 
 class Server
 {
-public:
+  public:
 	static void start(char **argv);
 	static void run();
 
 	static bool checkPassword(const std::string &pw);
-	static bool checkUsername(const std::string &un);
-	static void kick_user(size_t user);
-	static void send_channel_list(size_t iter);
-	static void channel_join_reqest(std::vector<std::string> token);
-	static void leave_channel(std::vector<std::string> token);
-	static void create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits);
-	static bool check_channel_syntax(std::vector<std::string> channel_splits, size_t i);
+	static bool checkUsername(const std::string &u_name);
+	static void server_kick(size_t user);
 
-private:
+  private:
 	static size_t _iter;
 	static int _sock;
 	static std::vector<pollfd> _fds;
@@ -57,13 +52,21 @@ private:
 
 	static void serverLoop();
 	static void cleanup();
-	static void leave_all_channel();
+	// static void send_err();
 	static void switchi(std::vector<std::string> token);
-	static void send_err();
+	static void create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits);
+	static void leave_all_channel();
+	static void send_channel_list(size_t iter);
+	static void channel_join_reqest(std::vector<std::string> token);
+	static void leave_channel(std::vector<std::string> token);
+	static void privmsg(std::vector<std::string> token);
+	static void msg_channel(std::string channel, std::string msg);
 
 	// Utilities
 	static void iter_vec_pfds();
 	static void connect_new_client();
 	static void client_message();
 	static void message_handling(std::string client_mssg);
+	static bool check_channel_syntax(std::vector<std::string> channel_splits, size_t i);
+	static bool check_privmsg_input(std::vector<std::string> token);
 };
