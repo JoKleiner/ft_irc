@@ -5,12 +5,13 @@ CXXFLAGS = -std=c++17
 CXXFLAGS += -Werror -Wextra -Wall
 CXXFLAGS += -MMD -MP
 CXXFLAGS += -I $(INC_DIR)
+#CXXFLAGS += -g -fsanitize=address
 
 OBJ_DIR := obj
 INC_DIR := inc
 
 VPATH := src
-SRCS := main.cpp Server.cpp Client.cpp Channel.cpp server_start.cpp msg_handler.cpp server_function.cpp utils.cpp CommandServer.cpp
+SRCS := main.cpp Server.cpp Client.cpp Channel.cpp server_start.cpp msg_handler.cpp server_function.cpp join.cpp privmsg.cpp utils.cpp CommandServer.cpp
 
 OBJS := $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.cpp=.o)))
 TOTAL := $(words $(SRCS))

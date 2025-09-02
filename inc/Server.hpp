@@ -16,7 +16,7 @@
 #include "Channel.hpp"
 #include "Format.hpp"
 
-#define SEND(fd, x) send(fd, x, strlen(x), 0)
+#define SEND(fd, mssg) send(fd, mssg, strlen(mssg), 0)
 #define PASS ct_hash("PASS")
 #define NICK ct_hash("NICK")
 #define USER ct_hash("USER")
@@ -25,25 +25,28 @@
 #define JOIN ct_hash("JOIN")
 #define PART ct_hash("PART")
 #define PRIVMSG ct_hash("PRIVMSG")
+#define KICK ct_hash("KICK")
+#define INVITE ct_hash("INVITE")
+#define TOPIC ct_hash("TOPIC")
+#define MODE ct_hash("MODE")
 #define PING ct_hash("PING")
 
 std::vector<std::string> split(std::string str, std::string cha);
 std::vector<std::string> token_message(std::string client_mssg);
 
+class Channel;
+
 class Server
 {
-public:
+  public:
 	static void start(char **argv);
 	static void run();
 
 	static bool checkPassword(const std::string &pw);
 	static bool checkNickname(const std::string &un);
-	static void kick_user(size_t user);
-	static void send_channel_list(size_t iter);
-	static void channel_join_reqest(std::vector<std::string> token);
-	static void leave_channel(Channel chan);
+	static void server_kick(size_t user);
 
-private:
+  private:
 	static size_t _iter;
 	static int _sock;
 	static std::vector<pollfd> _fds;
@@ -62,13 +65,21 @@ private:
 	// dont know yet
 	static void serverLoop();
 	static void cleanup();
-	static void leave_all_channel();
+	// static void send_err();
 	static void switchi(std::vector<std::string> token);
-	static void send_err();
+	static void create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits);
+	static void leave_all_channel();
+	static void send_channel_list(size_t iter);
+	static void channel_join_reqest(std::vector<std::string> token);
+	static void leave_channel(std::vector<std::string> token);
+	static void privmsg(std::vector<std::string> token);
+	static void msg_channel(std::string channel, std::string msg);
 
 	// Utilities
 	static void iter_vec_pfds();
 	static void connect_new_client();
 	static void client_message();
 	static void message_handling(std::string client_mssg);
+	static bool check_channel_syntax(std::vector<std::string> channel_splits, size_t i);
+	static bool check_privmsg_input(std::vector<std::string> token);
 };
