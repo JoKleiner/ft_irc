@@ -20,7 +20,6 @@ void Server::msg_client(std::string cl_name, std::string msg)
 void Server::msg_channel(std::string channel, std::string msg)
 {
 	std::string cl_name = _clients[_iter].get_nick();
-	Channel chan;
 
 	if(_channels.find(channel) == _channels.end())
 	{
@@ -29,7 +28,7 @@ void Server::msg_channel(std::string channel, std::string msg)
 		return ;
 	}
 
-	chan = _channels.find(channel)->second;
+	Channel &chan = _channels.find(channel)->second;
 	std::map<std::string, client_speci> cl_list = chan.get_cha_cl_list();
 
 	if(cl_list.find(cl_name) == cl_list.end())
