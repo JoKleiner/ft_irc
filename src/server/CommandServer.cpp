@@ -1,3 +1,4 @@
+
 #include "Server.hpp"
 
 void Server::pass(std::vector<std::string> token)
@@ -69,4 +70,3 @@ void Server::list(std::vector<std::string> token)
 	msg = msg + "\n";
 	SEND(_clients[_iter].get_fd(), msg.c_str());
 }
-
