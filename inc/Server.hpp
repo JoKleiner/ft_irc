@@ -78,7 +78,7 @@ class Server
 	// static void send_err();
 	static void switchi(std::vector<std::string> token);
 	static void create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits);
-	static void leave_all_channel();
+	static void leave_all_channel(const Client &client, const std::string &command = "PART", const std::string &msg = ":Heute ist nicht alle Tage, ich komm wieder keine Frage.");
 	static void msg_channel(std::string channel, std::string msg);
 	static void msg_client(std::string cl_name, std::string msg);
 

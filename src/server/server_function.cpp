@@ -20,6 +20,7 @@ bool Server::checkNickname(const std::string &u_name)
 void Server::server_kick(size_t user)
 {
 	std::cout << "Client disconnected (FD: " << _fds[user].fd << ")" << std::endl;
+	Server::leave_all_channel(_clients[user], "QUIT");
 	close(_fds[user].fd);
 	_fds.erase(_fds.begin() + user);
 	_clients.erase(_clients.begin() + user);
@@ -41,7 +42,10 @@ void Server::part(std::vector<std::string> token)
 			if (channel_map_point != _channels.end())
 			{
 				Channel &chan = channel_map_point->second;
-				chan.leave_channel(_clients[_iter]);
+				if (token.size() >= 2)
+					chan.leave_channel(_clients[_iter], token[2]);
+				else
+					chan.leave_channel(_clients[_iter]);
 				if (chan.get_cha_cl_list().empty())
 					_channels.erase(channel_map_point->first);
 			}

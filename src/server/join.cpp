@@ -22,11 +22,11 @@ bool Server::check_channel_syntax(std::vector<std::string> channel_splits, size_
 	return (true);
 }
 
-void Server::leave_all_channel()
+void Server::leave_all_channel(const Client &client, const std::string &command, const std::string &msg)
 {
 	for (auto it = _channels.begin(); it != _channels.end();)
 	{
-		it->second.leave_channel(_clients[_iter]);
+		it->second.leave_channel(client, command, msg);
 		if (it->second.get_cha_cl_list().empty())
 			it = _channels.erase(it);
 		else
@@ -41,7 +41,12 @@ void Server::join(std::vector<std::string> token)
 	else if (token.size() < 2)
 		sendERRRPL(_clients[_iter], SERVERNAME, "461", "JOIN :Not enough parameters");
 	else if (token[1] == "0")
-		leave_all_channel();
+	{
+		if (token.size() >= 2)
+			leave_all_channel(_clients[_iter], "QUIT", token[2]);
+		else
+			leave_all_channel(_clients[_iter], "QUIT");
+	}
 	else
 	{
 		std::vector<std::string> channel_splits = split(token[1], ",");

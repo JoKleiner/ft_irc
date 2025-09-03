@@ -9,7 +9,18 @@ std::vector<std::string> token_message(std::string line)
 	std::string token;
 
 	while (ss >> token)
-		vec_token.push_back(token);
+	{
+		if (token[0] == ':')
+		{
+			token = line.substr(line.find(':') + 1);
+			vec_token.push_back(token);
+			break;
+		}
+		else
+			vec_token.push_back(token);
+	}
+	// for(auto &s : vec_token)
+	// 	std::cout << s << " " << std::flush;
 	return (vec_token);
 }
 
@@ -35,5 +46,6 @@ void sendERRRPL(const Client &target, const std::string &prefix, const std::stri
 	if (std::all_of(command.begin(), command.end(), [](char c) { return std::isdigit(c); }))
 		SEND(target.get_fd(), (":" + prefix + " " + command + " " + target.get_nick() + " " + params + "\r\n").c_str());
 	else
-		SEND(target.get_fd(), (":" + prefix + " " + command + params + "\r\n").c_str());
+		SEND(target.get_fd(), (":" + prefix + " " + command + " " + params + "\r\n").c_str());
+	std::cout << (":" + prefix + " " + command + " " + target.get_nick() + " " + params + "\r\n").c_str();
 }

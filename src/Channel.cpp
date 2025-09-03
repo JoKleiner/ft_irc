@@ -4,11 +4,12 @@
 void Channel::ChannelWelcomeMessage(const Client &client)
 {
 	sendERRRPL(client, client.get_user_whole_str(), "JOIN", ":" + get_channel_name());
+	broadcast(client.get_nick(), ":" + client.get_user_whole_str() + " JOIN :" + get_channel_name());
 	if (m_topic.empty())
 		sendERRRPL(client, SERVERNAME, "331", this->get_channel_name() + " :No topic set");
 	else
 		sendERRRPL(client, SERVERNAME, "332", this->get_channel_name() + " :" + m_topic);
-	std::string msg = "=" + get_channel_name() + ":";
+	std::string msg = "=" + get_channel_name() + " :";
 	for (auto &[name, sp] : m_cl_list)
 		msg += (sp.rights == "operators" ? "@" : "+") + name + " ";
 	msg.pop_back();
@@ -40,14 +41,15 @@ std::map<std::string, client_speci> Channel::get_cha_cl_list()
 	return (m_cl_list);
 }
 
-void Channel::leave_channel(Client client)
+void Channel::leave_channel(const Client &client, const std::string &msg, const std::string &command)
 {
 	if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
 	{
-		std::string out = "You left channel: " + this->get_channel_name() + "\r\n";
-
 		m_cl_list.erase(client.get_nick());
-		SEND(client.get_fd(), out.c_str());
+		if (command == "PART")
+			broadcast(client.get_nick(), (":" + client.get_user_whole_str() + " " + command + " " + get_channel_name() + " :" + msg + "\r\n").c_str());
+		else
+			broadcast(client.get_nick(), (":" + client.get_user_whole_str() + " " + command + " :" + msg + "\r\n").c_str());
 	}
 	else
 		sendERRRPL(client, SERVERNAME, "442", get_channel_name() + " :You're not on that channel");
@@ -69,6 +71,7 @@ void Channel::join(Client client, std::string channel_pw)
 		client_speci client_spec;
 		client_spec.channel_creator = false;
 		client_spec.rights = "regular";
+		client_spec.fd = client.get_fd();
 		m_cl_list[client.get_nick()] = client_spec;
 
 		ChannelWelcomeMessage(client);
@@ -91,12 +94,8 @@ void Channel::broadcast(std::string sender, std::string msg) const
 {
 	for (auto &[name, specification] : m_cl_list)
 	{
-		std::cout << name << std::endl;
 		if (name != sender)
-		{
 			SEND(specification.fd, msg.c_str());
-			std::cout << "send to: " << name << " with " << specification.fd << std::endl;
-		}
 	}
 }
 

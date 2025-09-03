@@ -8,7 +8,7 @@ void Server::msg_client(std::string cl_name, std::string msg)
 	{
 		if (iter.get_nick() == cl_name)
 		{
-			std::string out = _clients[_iter].get_nick() + ": " + msg + "\r\n";
+			std::string out = ":" + _clients[_iter].get_user_whole_str() + " PRIVMSG " +  iter.get_nick() + " :" + msg + "\r\n";
 			SEND(iter.get_fd(), out.c_str());
 			return;
 		}
@@ -34,7 +34,8 @@ void Server::msg_channel(std::string channel, std::string msg)
 		sendERRRPL(_clients[_iter], SERVERNAME, "404", ":ERR_CANNOTSENDTOCHAN");
 		return;
 	}
-	(void)msg;
+	std::string nmsg = ":" + _clients[_iter].get_user_whole_str() + " PRIVMSG " + channel + " :" + msg + "\r\n";
+	chan.broadcast(cl_name, nmsg);
 }
 
 std::string create_msg(std::vector<std::string> token)
@@ -53,15 +54,10 @@ bool Server::check_privmsg_input(std::vector<std::string> token)
 {
 	if (token.size() < 3)
 	{
-		if (token.size() < 2 || token[1].find(':') != std::string::npos)
+		if (token.size() < 2)
 			sendERRRPL(_clients[_iter], SERVERNAME, "411", ":ERR_NORECIPIENT");
 		else
 			sendERRRPL(_clients[_iter], SERVERNAME, "412", ":ERR_NOTEXTTOSEND");
-		return false;
-	}
-	if (token[2].find(':') != 0)
-	{
-		sendERRRPL(_clients[_iter], SERVERNAME, "412", ":ERR_NOTEXTTOSEND");
 		return false;
 	}
 	return true;
@@ -71,7 +67,6 @@ void Server::privmsg(std::vector<std::string> token)
 {
 	if (!check_privmsg_input(token))
 		return;
-	std::string msg = create_msg(token);
 
 	std::vector<std::string> msg_receiv = split(token[1], ",");
 	for (size_t i = 0; i < msg_receiv.size(); i++)
@@ -79,10 +74,10 @@ void Server::privmsg(std::vector<std::string> token)
 		switch (msg_receiv[i][0])
 		{
 			case '#': case '&': case '+':
-				msg_channel(msg_receiv[i], msg);
+				msg_channel(msg_receiv[i], token[2]);
 				break;
 			default:
-				msg_client(msg_receiv[i], msg);
+				msg_client(msg_receiv[i], token[2]);
 				break;
 		}
 	}

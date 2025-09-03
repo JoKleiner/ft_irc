@@ -59,17 +59,8 @@ void Server::user(std::vector<std::string> token)
 
 void Server::quit(std::vector<std::string> token)
 {
+	Server::leave_all_channel(_clients[_iter], "QUIT", token[2]);
 	Server::server_kick(_iter);
-
-	std::string msg = std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string { return a + " " + b; });
-	if (msg.empty())
-		msg = "Heute ist nicht alle Tage, ich komm wieder keine Frage.";
-	for (auto &[name, channel] : _channels)
-	{
-		if (channel.get_cha_cl_list().count(_clients[_iter].get_nick()))
-			channel.broadcast(_clients[_iter].get_nick(), _clients[_iter].get_user_whole_str() + " :QUIT :" + msg + "\r\n");
-	}
-	Server::leave_all_channel();
 }
 
 void Server::list(std::vector<std::string> token)
