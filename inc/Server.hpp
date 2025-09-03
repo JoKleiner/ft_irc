@@ -31,8 +31,11 @@
 #define MODE ct_hash("MODE")
 #define PING ct_hash("PING")
 
+#define SERVERNAME "server.name"
+
 std::vector<std::string> split(std::string str, std::string cha);
 std::vector<std::string> token_message(std::string client_mssg);
+void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params = "");
 
 class Channel;
 

@@ -54,11 +54,11 @@ void Server::mode(std::vector<std::string> token)
 	for(size_t i = 1; i < token[2].size(); i++)
 	{
 		switch (token[2][i]) {
-			case 'i': chan.InviteMode(token, _clients[_iter]);	break;
-			case 't': chan.TopicMode(token, _clients[_iter]);	break;
-			case 'k': chan.KeyMode(token, _clients[_iter]);		break;
-			case 'o': chan.OperatMode(token, _clients[_iter]);	break;
-			case 'l': chan.LimitMode(token, _clients[_iter]);	break;
+			case 'i': chan.InviteMode(token, _clients[_iter], i);	break;
+			case 't': chan.TopicMode(token, _clients[_iter], i);	break;
+			case 'k': chan.KeyMode(token, _clients[_iter], i);		break;
+			case 'o': chan.OperatMode(token, _clients[_iter], i);	break;
+			case 'l': chan.LimitMode(token, _clients[_iter], i);	break;
 		}
 	}
 }

@@ -21,6 +21,8 @@ class Client
 	const std::string &get_nick() const;
 	bool registered() const;
 	const bool &pw_set() const;
+	void set_user_whole_str(const std::string &str);
+	const std::string &get_user_whole_str() const;
 
 	bool read_client_message(std::string &client_mssg);
 
@@ -31,4 +33,5 @@ class Client
 	std::string m_userstring;
 	std::string m_nick;
 	std::string m_addr;
+	std::string m_user_whole_str;
 };

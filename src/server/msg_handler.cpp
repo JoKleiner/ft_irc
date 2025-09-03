@@ -27,7 +27,7 @@ void Server::switchi(std::vector<std::string> token)
         // case TOPIC: topic(token);    break;
         case MODE: mode(token);         break;
         // case PING: ping(token);      break;
-        default: SEND(_fds[_iter].fd, ("421 " + token[0] + " :Unknown command\n\r"). c_str()); break;
+        default: sendERRRPL(_clients[_iter], SERVERNAME, "421", token[0] + " :Unknown command"); break;
     }
 }
 
