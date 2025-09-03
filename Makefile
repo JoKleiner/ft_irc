@@ -10,8 +10,11 @@ CXXFLAGS += -I $(INC_DIR)
 OBJ_DIR := obj
 INC_DIR := inc
 
-VPATH := src
-SRCS := main.cpp Server.cpp Client.cpp Channel.cpp server_start.cpp msg_handler.cpp server_function.cpp join.cpp privmsg.cpp utils.cpp CommandServer.cpp
+VPATH := src src/server
+CFILES_SRCS := main.cpp Client.cpp Channel.cpp utils.cpp
+CFILES_SERV := Server.cpp server_start.cpp msg_handler.cpp server_function.cpp join.cpp privmsg.cpp CommandServer.cpp
+
+SRCS := $(CFILES_SRCS) $(CFILES_SERV) 
 
 OBJS := $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.cpp=.o)))
 TOTAL := $(words $(SRCS))
@@ -53,7 +56,5 @@ fclean: clean
 	fi
 
 re: fclean all
-
--include $(OBJS:.o=.d)
 
 .PHONY: all clean fclean re

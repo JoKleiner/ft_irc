@@ -29,7 +29,7 @@ void Channel::leave_channel(Client client)
 	if(m_cl_list.find(client.get_nick()) != m_cl_list.end())
 	{
 		std::string out = "You left channel: " + this->get_channel_name() + "\n";
-
+		
 		m_cl_list.erase(client.get_nick());
 		SEND(client.get_fd(), out.c_str());
 	}

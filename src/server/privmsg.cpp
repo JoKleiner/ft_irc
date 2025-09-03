@@ -8,33 +8,32 @@ void Server::msg_client(std::string cl_name, std::string msg)
 	{
 		if (iter.get_nick() == cl_name)
 		{
-			std::string out = _clients[_iter].get_nick() +  ": " + msg + "\n\r";
+			std::string out = _clients[_iter].get_nick() +  ": " + msg.substr(1) + "\n\r";
 			SEND(iter.get_fd(), out.c_str());
 			return ;
 		}
 	}
-	std::string out = "401 \n\rERR_NOSUCHNICK\n\r";
+	std::string out = "401 ERR_NOSUCHNICK\n\r";
 	SEND(_clients[_iter].get_fd(), out.c_str());
 }
 
 void Server::msg_channel(std::string channel, std::string msg)
 {
 	std::string cl_name = _clients[_iter].get_nick();
-	Channel chan;
 
 	if(_channels.find(channel) == _channels.end())
 	{
-		std::string out = "403 \n\rERR_NOSUCHCHANNEL\n\r";
+		std::string out = "403 ERR_NOSUCHCHANNEL\n\r";
 		SEND(_clients[_iter].get_fd(), out.c_str());
 		return ;
 	}
 
-	chan = _channels.find(channel)->second;
+	Channel &chan = _channels.find(channel)->second;
 	std::map<std::string, client_speci> cl_list = chan.get_cha_cl_list();
 
 	if(cl_list.find(cl_name) == cl_list.end())
 	{
-		std::string out = "404 \n\rRR_CANNOTSENDTOCHAN\n\r";
+		std::string out = "404 RR_CANNOTSENDTOCHAN\n\r";
 		SEND(_clients[_iter].get_fd(), out.c_str());
 		return ;
 	}
@@ -61,19 +60,19 @@ bool Server::check_privmsg_input(std::vector<std::string> token)
 	{
 		if (token.size() < 2 || token[1].find(':') != std::string::npos)
 		{
-			std::string out = "411 \n\rERR_NORECIPIENT\n\r";
+			std::string out = "411 ERR_NORECIPIENT\n\r";
 			SEND(_clients[_iter].get_fd(), out.c_str());
 		}
 		else
 		{
-			std::string out = "412 \n\rERR_NOTEXTTOSEND\n\r";
+			std::string out = "412 ERR_NOTEXTTOSEND\n\r";
 			SEND(_clients[_iter].get_fd(), out.c_str());
 		}
 		return false;
 	}
 	if(token[2].find(':') != 0)
 	{
-		std::string out = "412 \n\rERR_NOTEXTTOSEND\n\r";
+		std::string out = "412 ERR_NOTEXTTOSEND\n\r";
 		SEND(_clients[_iter].get_fd(), out.c_str());
 		return false;
 	}

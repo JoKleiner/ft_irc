@@ -24,7 +24,7 @@ void Server::server_kick(size_t user)
 	_clients.erase(_clients.begin() + user);
 }
 
-void Server::leave_channel(std::vector<std::string> token)
+void Server::part(std::vector<std::string> token)
 {
 	std::vector<std::string> channel_splits = split(token[1], ",");
 
@@ -33,7 +33,7 @@ void Server::leave_channel(std::vector<std::string> token)
 		auto channel_map_point = _channels.find(channel_splits[i]);
 		if (channel_map_point != _channels.end())
 		{
-			Channel chan = channel_map_point->second;
+			Channel &chan = channel_map_point->second;
 			chan.leave_channel(_clients[_iter]);
 			if (chan.get_cha_cl_list().empty())
 				_channels.erase(channel_map_point->first);
