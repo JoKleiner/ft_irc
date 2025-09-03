@@ -25,14 +25,13 @@ void Server::switchi(std::vector<std::string> token)
             // case ct_hash("PART"):  xxx; break;
             // case ct_hash("PRIVMSG"): xxx;  break;
             // case ct_hash("PING"):  xxx; break;
-            default: SEND(_fds[_iter].fd, ("421 " + token[0] + " :Unknown command\n\r"). c_str()); break;
+            default: sendERRRPL(_clients[_iter], SERVERNAME, "421", token[0] + " :Unknown command"); break;
         }
 }
 
 void Server::message_handling(std::string client_mssg)
 {
     std::cout << "Client (FD " << _fds[_iter].fd << "): " << client_mssg << std::flush;
-	SEND(_fds[_iter].fd, "Message received\n");
     
     auto lines = split(client_mssg, "\r\n");
 
