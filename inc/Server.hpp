@@ -61,6 +61,13 @@ class Server
 	static void quit(std::vector<std::string> token);
 	static void list(std::vector<std::string> token);
 	static void join(std::vector<std::string> token);
+	static void part(std::vector<std::string> token);
+	static void privmsg(std::vector<std::string> token);
+	// static void kick(std::vector<std::string> token);
+	// static void invite(std::vector<std::string> token);
+	// static void topic(std::vector<std::string> token);
+	// static void mode(std::vector<std::string> token);
+	// static void ping(std::vector<std::string> token);
 
 	// dont know yet
 	static void serverLoop();
@@ -69,8 +76,6 @@ class Server
 	static void switchi(std::vector<std::string> token);
 	static void create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits);
 	static void leave_all_channel();
-	static void leave_channel(std::vector<std::string> token);
-	static void privmsg(std::vector<std::string> token);
 	static void msg_channel(std::string channel, std::string msg);
 	static void msg_client(std::string cl_name, std::string msg);
 
