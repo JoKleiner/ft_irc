@@ -16,7 +16,6 @@ struct client_speci
 class Channel
 {
   public:
-	Channel() = default;
 	Channel(std::string name, Client client);
 	~Channel() = default;
 
