@@ -1,6 +1,5 @@
 
 #include "Server.hpp"
-#include <regex>
 
 int main(int argc, char **argv)
 {

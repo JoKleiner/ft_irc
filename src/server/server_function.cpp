@@ -21,7 +21,7 @@ void Server::server_kick(size_t user)
 	_clients.erase(_clients.begin() + user);
 }
 
-void Server::part(std::vector<std::string> token)
+void Server::part(std::vector<std::string> &token)
 {
 	if (!_clients[_iter].registered())
 		sendERRRPL(_clients[_iter], SERVERNAME, "421", ":You have not registered");

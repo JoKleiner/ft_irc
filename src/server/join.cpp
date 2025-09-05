@@ -35,7 +35,7 @@ void Server::leave_all_channel(const Client &client, const std::string &command,
 	}
 }
 
-void Server::join(std::vector<std::string> token)
+void Server::join(std::vector<std::string> &token)
 {
 	if (!_clients[_iter].registered())
 		sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");

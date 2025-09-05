@@ -1,7 +1,7 @@
 
 #include "Server.hpp"
 
-void Server::pass(std::vector<std::string> token)
+void Server::pass(std::vector<std::string> &token)
 {
 	if (token.size() < 2)
 		sendERRRPL(_clients[_iter], SERVERNAME, "461", "PASS :Not enough parameters");
@@ -13,7 +13,7 @@ void Server::pass(std::vector<std::string> token)
 		_clients[_iter].set_pw(true);
 }
 
-void Server::nick(std::vector<std::string> token)
+void Server::nick(std::vector<std::string> &token)
 {
 	if (!_clients[_iter].pw_set() /* || _clients[_iter].get_user().empty() */)
 		sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
@@ -34,7 +34,7 @@ void Server::nick(std::vector<std::string> token)
 	}
 }
 
-void Server::user(std::vector<std::string> token)
+void Server::user(std::vector<std::string> &token)
 {
 	if (!_clients[_iter].pw_set() /* || _clients[_iter].get_user().empty() */)
 		sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
@@ -58,7 +58,7 @@ void Server::user(std::vector<std::string> token)
 	}
 }
 
-void Server::quit(std::vector<std::string> token)
+void Server::quit(std::vector<std::string> &token)
 {
 	if (token.size() >= 3)
 		Server::leave_all_channel(_clients[_iter], "QUIT", token[2]);
@@ -67,7 +67,7 @@ void Server::quit(std::vector<std::string> token)
 	Server::server_kick(_iter);
 }
 
-void Server::list(std::vector<std::string> token)
+void Server::list(std::vector<std::string> &token)
 {
 	(void)token;
 	if (!_clients[_iter].registered())

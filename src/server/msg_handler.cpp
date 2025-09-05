@@ -10,7 +10,7 @@ constexpr size_t ct_hash(const char* str)
     return(hash);
 }
 
-void Server::switchi(std::vector<std::string> token)
+void Server::switchi(std::vector<std::string> &token)
 {
     switch(ct_hash(token[0].c_str()))
     {
