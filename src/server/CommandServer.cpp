@@ -59,7 +59,10 @@ void Server::user(std::vector<std::string> token)
 
 void Server::quit(std::vector<std::string> token)
 {
-	Server::leave_all_channel(_clients[_iter], "QUIT", token[2]);
+	if (token.size() >= 3)
+		Server::leave_all_channel(_clients[_iter], "QUIT", token[2]);
+	else
+		Server::leave_all_channel(_clients[_iter], "QUIT");
 	Server::server_kick(_iter);
 }
 
@@ -71,11 +74,8 @@ void Server::list(std::vector<std::string> token)
 	else
 	{
 		std::string msg = "\nList of open channels:\n";
-		for (auto chan : _channels)
-		{
-			msg = msg + chan.second.get_channel_name() + "\n";
-		}
-		msg = msg + "\n";
-		SEND(_clients[_iter].get_fd(), msg.c_str());
+		for (auto &[name, channel] : _channels)
+			sendERRRPL(_clients[_iter], SERVERNAME, "322", name + " # " + std::to_string(channel.get_cha_cl_list().size()) + " :" + channel.get_topic());
+		sendERRRPL(_clients[_iter], SERVERNAME, "323", ":End of LIST");
 	}
 }

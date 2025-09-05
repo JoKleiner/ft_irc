@@ -55,6 +55,8 @@ fclean: clean
 		printf "$(RED) removed.$(RESET)\n"; \
 	fi
 
+-include $(OBJS:.o=.d)
+
 re: fclean all
 
 .PHONY: all clean fclean re

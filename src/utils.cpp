@@ -44,8 +44,8 @@ std::vector<std::string> split(std::string str, std::string cha)
 void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params)
 {
 	if (std::all_of(command.begin(), command.end(), [](char c) { return std::isdigit(c); }))
-		SEND(target.get_fd(), (":" + prefix + " " + command + " " + target.get_nick() + " " + params + "\r\n").c_str());
+		SEND(target.get_fd(), (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str());
 	else
 		SEND(target.get_fd(), (":" + prefix + " " + command + " " + params + "\r\n").c_str());
-	std::cout << (":" + prefix + " " + command + " " + target.get_nick() + " " + params + "\r\n").c_str();
+	std::cout << (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str();
 }

@@ -4,12 +4,12 @@
 void Channel::ChannelWelcomeMessage(const Client &client)
 {
 	sendERRRPL(client, client.get_user_whole_str(), "JOIN", ":" + get_channel_name());
-	broadcast(client.get_nick(), ":" + client.get_user_whole_str() + " JOIN :" + get_channel_name());
+	broadcast(client.get_nick(), ":" + client.get_user_whole_str() + " JOIN :" + get_channel_name() + "\r\n");
 	if (m_topic.empty())
 		sendERRRPL(client, SERVERNAME, "331", this->get_channel_name() + " :No topic set");
 	else
 		sendERRRPL(client, SERVERNAME, "332", this->get_channel_name() + " :" + m_topic);
-	std::string msg = "=" + get_channel_name() + " :";
+	std::string msg = "= " + get_channel_name() + " :";
 	for (auto &[name, sp] : m_cl_list)
 		msg += (sp.rights == "operators" ? "@" : "+") + name + " ";
 	msg.pop_back();
@@ -36,7 +36,7 @@ Channel::Channel(std::string name, Client client)
 	ChannelWelcomeMessage(client);
 }
 
-std::map<std::string, client_speci> Channel::get_cha_cl_list()
+const std::map<std::string, client_speci> &Channel::get_cha_cl_list() const
 {
 	return (m_cl_list);
 }
@@ -62,12 +62,7 @@ void Channel::join(Client client, std::string channel_pw)
 	else if (channel_pw == m_password)
 	{
 		if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
-		{
-			// technicaly we have to ignore that silently
-			std::string out = "Client already in channel: " + this->get_channel_name() + "\r\n";
-			SEND(client.get_fd(), out.c_str());
 			return;
-		}
 		client_speci client_spec;
 		client_spec.channel_creator = false;
 		client_spec.rights = "regular";
@@ -80,9 +75,14 @@ void Channel::join(Client client, std::string channel_pw)
 		sendERRRPL(client, SERVERNAME, "464", ":Password incorrect");
 }
 
-std::string Channel::get_channel_name()
+const std::string &Channel::get_channel_name() const
 {
 	return (m_name);
+}
+
+const std::string &Channel::get_topic() const
+{
+	return (m_topic);
 }
 
 void Channel::set_channel_pw(std::string password)
@@ -92,6 +92,7 @@ void Channel::set_channel_pw(std::string password)
 
 void Channel::broadcast(std::string sender, std::string msg) const
 {
+	std::cout << msg;
 	for (auto &[name, specification] : m_cl_list)
 	{
 		if (name != sender)

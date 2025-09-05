@@ -13,7 +13,7 @@ void Server::msg_client(std::string cl_name, std::string msg)
 			return;
 		}
 	}
-	sendERRRPL(_clients[_iter], SERVERNAME, "401", ":ERR_NOSUCHNICK");
+	sendERRRPL(_clients[_iter], SERVERNAME, "401", cl_name + " :No such nick");
 }
 
 void Server::msg_channel(std::string channel, std::string msg)
@@ -22,7 +22,7 @@ void Server::msg_channel(std::string channel, std::string msg)
 
 	if (_channels.find(channel) == _channels.end())
 	{
-		sendERRRPL(_clients[_iter], SERVERNAME, "403", ":ERR_NOSUCHCHANNEL");
+		sendERRRPL(_clients[_iter], SERVERNAME, "403", channel + " :No such channel");
 		return;
 	}
 
@@ -31,7 +31,7 @@ void Server::msg_channel(std::string channel, std::string msg)
 
 	if (cl_list.find(cl_name) == cl_list.end())
 	{
-		sendERRRPL(_clients[_iter], SERVERNAME, "404", ":ERR_CANNOTSENDTOCHAN");
+		sendERRRPL(_clients[_iter], SERVERNAME, "404", channel + " :ERR_CANNOTSENDTOCHAN");
 		return;
 	}
 	std::string nmsg = ":" + _clients[_iter].get_user_whole_str() + " PRIVMSG " + channel + " :" + msg + "\r\n";
@@ -55,9 +55,9 @@ bool Server::check_privmsg_input(std::vector<std::string> token)
 	if (token.size() < 3)
 	{
 		if (token.size() < 2)
-			sendERRRPL(_clients[_iter], SERVERNAME, "411", ":ERR_NORECIPIENT");
+			sendERRRPL(_clients[_iter], SERVERNAME, "411", ":No recipient given (PRIVMSG)");
 		else
-			sendERRRPL(_clients[_iter], SERVERNAME, "412", ":ERR_NOTEXTTOSEND");
+			sendERRRPL(_clients[_iter], SERVERNAME, "412", ":No text to send");
 		return false;
 	}
 	return true;
