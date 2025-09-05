@@ -26,40 +26,53 @@ void Channel::TopicMode(std::vector<std::string> token, Client client, size_t i)
 	send_channel_mode(token, client, i);
 }
 
-void Channel::KeyMode(std::vector<std::string> token, Client client, size_t i)
+static bool check_channel_pw(std::string line)
+{
+	if (line.size() < 2 || line.size() >= 32)
+		return false;
+
+	for (size_t i = 0; i < line.size(); i++)
+		if (!std::isprint(line[i]) || line[i] == ' ')
+            return false;
+	
+	return true;
+}
+
+void Channel::KeyMode(std::vector<std::string> token, Client client, size_t i, size_t mode_count)
 {
 	if (token[2][0] == '-')
 	{
-		std::string out = client.get_user_whole_str() + " MODE " + token[1] + token[2][0] + token[2][i] + m_password;
+		std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + token[2][0] + token[2][i] + "\n\r";
 		m_password = nullptr;
 		for (auto it : m_cl_list)
 			SEND(it.second.fd, out.c_str());
 	}
-	else if (token.size() != 4)
-	{
-		std::string out = "461 ERR_NEEDMOREPARAMS\n\r";
-		SEND(client.get_fd(), out.c_str());
-	}
+	else if (token.size() < mode_count + 1)
+		sendERRRPL(client, SERVERNAME, "461", std::string("MODE :ERR_NEEDMOREPARAMS ") + token[2][0] + token[2][i]);
+	else if (!check_channel_pw(token[mode_count]))
+		sendERRRPL(client, SERVERNAME, "477", std::string("MODE :ERR_KEYSET ") + token[2][0] + token[2][i]);
 	else
 	{
-		m_password = token[3];
-		std::string out = client.get_user_whole_str() + " MODE " + token[1] + token[2][0] + token[2][i] + m_password;
+		m_password = token[mode_count];
+		std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " :" + token[2][0] + token[2][i] + " " + m_password + "\n\r";
 		m_password = nullptr;
 		for (auto it : m_cl_list)
 			SEND(it.second.fd, out.c_str());
 	}
 }
 
-void Channel::OperatMode(std::vector<std::string> token, Client client, size_t i)
+void Channel::OperatMode(std::vector<std::string> token, Client client, size_t i, size_t mode_count)
 {
 	(void)token;
 	(void)client;
 	(void)i;
+	(void)mode_count;
 }
 
-void Channel::LimitMode(std::vector<std::string> token, Client client, size_t i)
+void Channel::LimitMode(std::vector<std::string> token, Client client, size_t i, size_t mode_count)
 {
 	(void)token;
 	(void)client;
 	(void)i;
+	(void)mode_count;
 }

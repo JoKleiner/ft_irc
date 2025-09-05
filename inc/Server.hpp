@@ -45,7 +45,6 @@ class Server
 	static void start(char **argv);
 	static void run();
 
-	static bool checkPassword(const std::string &pw);
 	static bool checkNickname(const std::string &un);
 	static void server_kick(size_t user);
 

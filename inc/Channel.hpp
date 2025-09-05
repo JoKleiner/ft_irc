@@ -28,9 +28,9 @@ class Channel
 
 	void InviteMode(std::vector<std::string> token, Client client, size_t i);
 	void TopicMode(std::vector<std::string> token, Client client, size_t i);
-	void KeyMode(std::vector<std::string> token, Client client, size_t i);
-	void OperatMode(std::vector<std::string> token, Client client, size_t i);
-	void LimitMode(std::vector<std::string> token, Client client, size_t i);
+	void KeyMode(std::vector<std::string> token, Client client, size_t i, size_t mode_count);
+	void OperatMode(std::vector<std::string> token, Client client, size_t i, size_t mode_count);
+	void LimitMode(std::vector<std::string> token, Client client, size_t i, size_t mode_count);
 	void send_channel_mode(std::vector<std::string> token, Client client, size_t i);
 
   private:

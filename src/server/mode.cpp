@@ -20,8 +20,9 @@ bool Server::check_mode_input(std::vector<std::string> token)
 	}
 	for (size_t i = 1; i < token[2].size(); i++)
 	{
-		switch (token[2][i]) {
-		case 'i': case 't': case 'k': case 'o': case 'l':
+		switch (token[2][i])
+		{
+		case 'i':  case 't':  case 'k':  case 'o':  case 'l':
 			break;
 		default:
 			std::string out = "472 ERR_UNKNOWNMODE\n\r";
@@ -51,14 +52,16 @@ void Server::mode(std::vector<std::string> token)
 	if (!check_mode_input(token))
 		return;
 	Channel &chan = _channels.find(token[1])->second;
-	for(size_t i = 1; i < token[2].size(); i++)
+	size_t mode_count = 3;
+	for (size_t i = 1; i < token[2].size(); i++)
 	{
-		switch (token[2][i]) {
-			case 'i': chan.InviteMode(token, _clients[_iter], i);	break;
-			case 't': chan.TopicMode(token, _clients[_iter], i);	break;
-			case 'k': chan.KeyMode(token, _clients[_iter], i);		break;
-			case 'o': chan.OperatMode(token, _clients[_iter], i);	break;
-			case 'l': chan.LimitMode(token, _clients[_iter], i);	break;
+		switch (token[2][i])
+		{
+		case 'i':	chan.InviteMode(token, _clients[_iter], i);					break;
+		case 't':	chan.TopicMode(token, _clients[_iter], i);					break;
+		case 'k':	chan.KeyMode(token, _clients[_iter], i, mode_count++);		break;
+		case 'o':	chan.OperatMode(token, _clients[_iter], i, mode_count++);	break;
+		case 'l':	chan.LimitMode(token, _clients[_iter], i, mode_count++);	break;
 		}
 	}
 }
