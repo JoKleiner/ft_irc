@@ -19,11 +19,11 @@ class Channel
 	~Channel() = default;
 
 	void join(Client client, std::string channel_pw);
-	std::string get_channel_name();
-	void leave(size_t iter);
+	const std::string &get_channel_name() const;
+	const std::string &get_topic() const;
 	void set_channel_pw(std::string password);
-	void leave_channel(Client client);
-	std::map<std::string, client_speci> get_cha_cl_list();
+	void leave_channel(const Client &client, const std::string &msg = "Heute ist nicht alle Tage, ich komm wieder keine Frage.", const std::string &command = "PART");
+	const std::map<std::string, client_speci> &get_cha_cl_list() const;
 	void broadcast(std::string sender, std::string msg) const;
 
 	void InviteMode(std::vector<std::string> token, Client client, size_t i);

@@ -60,17 +60,11 @@ void Server::user(std::vector<std::string> token)
 
 void Server::quit(std::vector<std::string> token)
 {
+	if (token.size() >= 3)
+		Server::leave_all_channel(_clients[_iter], "QUIT", token[2]);
+	else
+		Server::leave_all_channel(_clients[_iter], "QUIT");
 	Server::server_kick(_iter);
-
-	std::string msg = std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string { return a + " " + b; });
-	if (msg.empty())
-		msg = "Heute ist nicht alle Tage, ich komm wieder keine Frage.";
-	for (auto &[name, channel] : _channels)
-	{
-		if (channel.get_cha_cl_list().count(_clients[_iter].get_nick()))
-			channel.broadcast(_clients[_iter].get_nick(), _clients[_iter].get_user_whole_str() + " :QUIT :" + msg + "\r\n");
-	}
-	Server::leave_all_channel();
 }
 
 void Server::list(std::vector<std::string> token)
@@ -81,11 +75,8 @@ void Server::list(std::vector<std::string> token)
 	else
 	{
 		std::string msg = "\nList of open channels:\n";
-		for (auto chan : _channels)
-		{
-			msg = msg + chan.second.get_channel_name() + "\n";
-		}
-		msg = msg + "\n";
-		SEND(_clients[_iter].get_fd(), msg.c_str());
+		for (auto &[name, channel] : _channels)
+			sendERRRPL(_clients[_iter], SERVERNAME, "322", name + " # " + std::to_string(channel.get_cha_cl_list().size()) + " :" + channel.get_topic());
+		sendERRRPL(_clients[_iter], SERVERNAME, "323", ":End of LIST");
 	}
 }
