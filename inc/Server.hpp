@@ -65,7 +65,7 @@ class Server
 	static void join(std::vector<std::string> &token);
 	static void part(std::vector<std::string> &token);
 	static void privmsg(std::vector<std::string> &token);
-	// static void kick(std::vector<std::string> &token);
+	static void kick(std::vector<std::string> &token);
 	// static void invite(std::vector<std::string> &token);
 	// static void topic(std::vector<std::string> &token);
 	static void mode(std::vector<std::string> &token);

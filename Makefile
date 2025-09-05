@@ -12,7 +12,7 @@ INC_DIR := inc
 
 VPATH := src src/server src/channel
 CFILES_SRCS := main.cpp Client.cpp utils.cpp
-CFILES_SERV := Server.cpp server_start.cpp msg_handler.cpp server_function.cpp join.cpp privmsg.cpp mode.cpp CommandServer.cpp
+CFILES_SERV := Server.cpp server_start.cpp msg_handler.cpp server_function.cpp join.cpp privmsg.cpp mode.cpp CommandServer.cpp ChanOpCoomants.cpp
 CFILES_CHAN := Channel.cpp ChanMode.cpp
 
 SRCS := $(CFILES_SRCS) $(CFILES_SERV) $(CFILES_CHAN) 

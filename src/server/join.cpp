@@ -1,6 +1,5 @@
 
 #include "Server.hpp"
-#include <regex>
 
 void Server::create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits)
 {

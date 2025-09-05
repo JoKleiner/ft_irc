@@ -24,31 +24,17 @@ bool Server::check_mode_input(std::vector<std::string> &token)
 		}
 	}
 
-	auto clie_list = chan_ele->second.get_cha_cl_list(); // all clients in channel
-	auto clie_ele = clie_list.find(_clients[_iter].get_nick()); 
+	auto clie_list = chan_ele->second.get_cha_cl_list();
+	auto clie_ele = clie_list.find(_clients[_iter].get_nick());
 
-	if (clie_ele == clie_list.end()) 	// does the nick exist?
+	if (clie_ele == clie_list.end())
 		return (sendERRRPL(_clients[_iter], SERVERNAME, "442", "MODE :ERR_NOTONCHANNEL"), false);
 
-	if (!clie_ele->second.ch_operator) // is client channel op?
+	if (!clie_ele->second.ch_operator)
 		return (sendERRRPL(_clients[_iter], SERVERNAME, "482", "MODE :ERR_CHANOPRIVSNEEDED"), false);
 
 	return true;
 }
-/*
-	i: Set/remove Invite-only channel
-	t: Set/remove the restrictions of the TOPIC command to channel operators
-	k: Set/remove the channel key (password)
-	o: Give/take channel operator privilege
-	l: Set/remove the user limit to channel
-*/
-/*
-	472 ERR_UNKNOWNMODE			Mode existiert nicht 			(MODE #chat +z)
-	403 ERR_NOSUCHCHANNEL		Channel existiert nicht			(MODE #nichtvorhanden +i)
-	482 ERR_CHANOPRIVSNEEDED	Keine Rechte, Mode zu setzen	(MODE #chat +i)
-	401 ERR_NOSUCHNICK			Nick existiert nicht			(MODE NichtExistierenderNick +i)
-	461	ERR_NEEDMOREPARAMS		Parameter fehlen				(MODE #chat +o)
-*/
 
 void Server::mode(std::vector<std::string> &token)
 {
