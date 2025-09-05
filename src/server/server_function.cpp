@@ -2,10 +2,6 @@
 #include "Server.hpp"
 #include <regex>
 
-bool Server::checkPassword(const std::string &pw){
-	return (pw == _password);
-}
-
 bool Server::checkNickname(const std::string &u_name)
 {
 	for (size_t i = 0; i < _clients.size(); ++i)
@@ -26,22 +22,26 @@ void Server::server_kick(size_t user)
 
 void Server::part(std::vector<std::string> token)
 {
-	std::vector<std::string> channel_splits = split(token[1], ",");
-
-	for (size_t i = 0; i < channel_splits.size(); i++)
+	if (!_clients[_iter].registered())
+		sendERRRPL(_clients[_iter], SERVERNAME, "421", ":You have not registered");
+	else if (token.size() < 2)
+		sendERRRPL(_clients[_iter], SERVERNAME, "461", "PART :Not enough parameters");
+	else
 	{
-		auto channel_map_point = _channels.find(channel_splits[i]);
-		if (channel_map_point != _channels.end())
+		std::vector<std::string> channel_splits = split(token[1], ",");
+
+		for (size_t i = 0; i < channel_splits.size(); i++)
 		{
-			Channel &chan = channel_map_point->second;
-			chan.leave_channel(_clients[_iter]);
-			if (chan.get_cha_cl_list().empty())
-				_channels.erase(channel_map_point->first);
-		}
-		else
-		{
-			std::string out = "Not existing channel: " + channel_splits[i] + "\n";
-			SEND(_clients[_iter].get_fd(), out.c_str());
+			auto channel_map_point = _channels.find(channel_splits[i]);
+			if (channel_map_point != _channels.end())
+			{
+				Channel &chan = channel_map_point->second;
+				chan.leave_channel(_clients[_iter]);
+				if (chan.get_cha_cl_list().empty())
+					_channels.erase(channel_map_point->first);
+			}
+			else
+				sendERRRPL(_clients[_iter], SERVERNAME, "403", channel_splits[i] + " :No such channel");
 		}
 	}
 }

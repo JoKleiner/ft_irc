@@ -73,3 +73,13 @@ const std::string &Client::get_addr() const
 {
 	return (m_addr);
 }
+
+const std::string &Client::get_user_whole_str() const
+{
+	return (m_user_whole_str);
+}
+
+void Client::set_user_whole_str(const std::string &str)
+{
+	m_user_whole_str = str;
+}

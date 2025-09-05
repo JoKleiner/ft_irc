@@ -1,13 +1,14 @@
+
 #include "Server.hpp"
 
 void Server::pass(std::vector<std::string> token)
 {
 	if (token.size() < 2)
-		SEND(_clients[_iter].get_fd(), "461 PASS: :Not enough parameters\n\r");
+		sendERRRPL(_clients[_iter], SERVERNAME, "461", "PASS :Not enough parameters");
 	else if (_clients[_iter].pw_set())
-		SEND(_clients[_iter].get_fd(), "462 :Unauthorized command (already registered)\n\r");
-	else if (!Server::checkPassword(token[1]))
-		SEND(_clients[_iter].get_fd(), "464 :Password incorrect\n\r");
+		sendERRRPL(_clients[_iter], SERVERNAME, "462", ":Unauthorized command (already registered)");
+	else if (_password != token[1])
+		sendERRRPL(_clients[_iter], SERVERNAME, "464", ":Password incorrect");
 	else
 		_clients[_iter].set_pw(true);
 }
@@ -15,38 +16,44 @@ void Server::pass(std::vector<std::string> token)
 void Server::nick(std::vector<std::string> token)
 {
 	if (!_clients[_iter].pw_set() /* || _clients[_iter].get_user().empty() */)
-		SEND(_clients[_iter].get_fd(), "451 :You have not registered\n\r");
+		sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
 	else if (token.size() < 2)
-		SEND(_clients[_iter].get_fd(), "431 :No nickname given\n\r");
+		sendERRRPL(_clients[_iter], SERVERNAME, "431", ":No nickname given");
 	else if (!std::regex_match(token[1], std::regex(FMT_NICKNAME)))
-		SEND(_clients[_iter].get_fd(), ("432" + token[1] + " :Erroneous nickname\n\r").c_str());
+		sendERRRPL(_clients[_iter], SERVERNAME, "432", token[1] + " :Erroneous nickname");
 	else if (!Server::checkNickname(token[1]))
-		SEND(_clients[_iter].get_fd(), ("433" + token[1] + " :Nickname is already in use\n\r").c_str());
+		sendERRRPL(_clients[_iter], SERVERNAME, "433", token[1] + " :Nickname is already in use");
 	else
 	{
 		_clients[_iter].set_nick(token[1]);
 		if (_clients[_iter].registered())
-			SEND(_clients[_iter].get_fd(), ("001 Welcome to the Internet Relay Network " + _clients[_iter].get_nick() + "!" + _clients[_iter].get_user() + "@" + _clients[_iter].get_addr() + "\n\r").c_str());
+		{
+			_clients[_iter].set_user_whole_str(_clients[_iter].get_nick() + "!" + _clients[_iter].get_user() + "@" + _clients[_iter].get_addr());
+			sendERRRPL(_clients[_iter], SERVERNAME, "001", ":Welcome to the Internet Relay Network " + _clients[_iter].get_user_whole_str());
+		}
 	}
 }
 
 void Server::user(std::vector<std::string> token)
 {
 	if (!_clients[_iter].pw_set() /* || _clients[_iter].get_user().empty() */)
-		SEND(_clients[_iter].get_fd(), "451 :You have not registered\n\r");
+		sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
 	else if (!_clients[_iter].get_user().empty())
-		SEND(_clients[_iter].get_fd(), "462 :Unauthorized command (already registered)\n\r");
+		sendERRRPL(_clients[_iter], SERVERNAME, "462", ":Unauthorized command (already registered)");
 	else if (token.size() < 5)
-		SEND(_clients[_iter].get_fd(), "461 PASS: :Not enough parameters\n\r");
+		sendERRRPL(_clients[_iter], SERVERNAME, "461", "PASS :Not enough parameters");
 	else
 	{
 		if (!std::regex_match(token[1], std::regex(FMT_USER)))
-			SEND(_clients[_iter].get_fd(), ("468 " + token[1] + ":Invalid username\n\r").c_str());
+			sendERRRPL(_clients[_iter], SERVERNAME, "468", token[1] + " :Invalid username");
 		else
 		{
 			_clients[_iter].set_user(token[1], std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string { return a + " " + b; }));
 			if (_clients[_iter].registered())
-				SEND(_clients[_iter].get_fd(), ("001 Welcome to the Internet Relay Network " + _clients[_iter].get_nick() + "!" + _clients[_iter].get_user() + "@" + _clients[_iter].get_addr() + "\n\r").c_str());
+			{
+				_clients[_iter].set_user_whole_str(_clients[_iter].get_nick() + "!" + _clients[_iter].get_user() + "@" + _clients[_iter].get_addr());
+				sendERRRPL(_clients[_iter], SERVERNAME, "001", ":Welcome to the Internet Relay Network " + _clients[_iter].get_user_whole_str());
+			}
 		}
 	}
 }
@@ -54,19 +61,31 @@ void Server::user(std::vector<std::string> token)
 void Server::quit(std::vector<std::string> token)
 {
 	Server::server_kick(_iter);
+
 	std::string msg = std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string { return a + " " + b; });
-	// broadcast(_clients[iter].get_nick() + "!" + _clients[iter].get_user() + "@" + _clients[iter].get_addr() + "QUIT :" + msg);
+	if (msg.empty())
+		msg = "Heute ist nicht alle Tage, ich komm wieder keine Frage.";
+	for (auto &[name, channel] : _channels)
+	{
+		if (channel.get_cha_cl_list().count(_clients[_iter].get_nick()))
+			channel.broadcast(_clients[_iter].get_nick(), _clients[_iter].get_user_whole_str() + " :QUIT :" + msg + "\r\n");
+	}
+	Server::leave_all_channel();
 }
 
 void Server::list(std::vector<std::string> token)
 {
 	(void)token;
-	std::string msg = "\nList of open channels:\n";
-	for (auto chan : _channels)
+	if (!_clients[_iter].registered())
+		sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
+	else
 	{
-		msg = msg + chan.second.get_channel_name() + "\n";
+		std::string msg = "\nList of open channels:\n";
+		for (auto chan : _channels)
+		{
+			msg = msg + chan.second.get_channel_name() + "\n";
+		}
+		msg = msg + "\n";
+		SEND(_clients[_iter].get_fd(), msg.c_str());
 	}
-	msg = msg + "\n";
-	SEND(_clients[_iter].get_fd(), msg.c_str());
 }
-
