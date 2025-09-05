@@ -11,7 +11,7 @@ void Channel::ChannelWelcomeMessage(const Client &client)
 		sendERRRPL(client, SERVERNAME, "332", this->get_channel_name() + " :" + m_topic);
 	std::string msg = "= " + get_channel_name() + " :";
 	for (auto &[name, sp] : m_cl_list)
-		msg += (sp.rights == "operators" ? "@" : "+") + name + " ";
+		msg += (sp.ch_operator == true ? "@" : "+") + name + " ";
 	msg.pop_back();
 	sendERRRPL(client, SERVERNAME, "353", msg);
 	sendERRRPL(client, SERVERNAME, "366", get_channel_name() + " :End of NAMES list");
@@ -22,17 +22,17 @@ Channel::Channel(std::string name, Client client)
 	client_speci cur_client;
 	if (name[0] == '+')
 	{
-		cur_client.channel_creator = false;
-		cur_client.rights = "regular";
+		cur_client.ch_operator = false;
 	}
 	else
 	{
-		cur_client.channel_creator = true;
-		cur_client.rights = "operators";
+		cur_client.ch_operator = true;
 	}
 	cur_client.fd = client.get_fd();
 	m_name = name;
 	m_cl_list[client.get_nick()] = cur_client;
+	m_invite_only = false;
+	m_topic_operat = true;
 	ChannelWelcomeMessage(client);
 }
 
@@ -57,6 +57,11 @@ void Channel::leave_channel(const Client &client, const std::string &msg, const 
 
 void Channel::join(Client client, std::string channel_pw)
 {
+	if(m_invite_only == true && std::find(m_invite_list.begin(), m_invite_list.end(), client.get_nick())	!= m_invite_list.end())
+	{
+		std::string out = "473 ERR_INVITEONLYCHAN\n\r";
+		SEND(client.get_fd(), out.c_str());
+	}
 	if (!client.registered())
 		sendERRRPL(client, SERVERNAME, "451", ":You have not registered");
 	else if (channel_pw == m_password)
@@ -64,9 +69,8 @@ void Channel::join(Client client, std::string channel_pw)
 		if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
 			return;
 		client_speci client_spec;
-		client_spec.channel_creator = false;
-		client_spec.rights = "regular";
 		client_spec.fd = client.get_fd();
+		client_spec.ch_operator = false;
 		m_cl_list[client.get_nick()] = client_spec;
 
 		ChannelWelcomeMessage(client);

@@ -1,3 +1,4 @@
+
 #include "Server.hpp"
 
 void Server::pass(std::vector<std::string> token)
@@ -6,7 +7,7 @@ void Server::pass(std::vector<std::string> token)
 		sendERRRPL(_clients[_iter], SERVERNAME, "461", "PASS :Not enough parameters");
 	else if (_clients[_iter].pw_set())
 		sendERRRPL(_clients[_iter], SERVERNAME, "462", ":Unauthorized command (already registered)");
-	else if (!Server::checkPassword(token[1]))
+	else if (_password != token[1])
 		sendERRRPL(_clients[_iter], SERVERNAME, "464", ":Password incorrect");
 	else
 		_clients[_iter].set_pw(true);

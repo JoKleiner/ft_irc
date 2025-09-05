@@ -14,19 +14,19 @@ void Server::switchi(std::vector<std::string> token)
 {
     switch(ct_hash(token[0].c_str()))
     {
-        case PASS: Server::pass(token);         break;
-        case NICK: Server::nick(token);         break;
-        case USER: Server::user(token);         break;
-        case QUIT: Server::quit(token);         break;
-        case LIST: Server::list(token);         break;
-        case JOIN: Server::join(token);         break;
-        case PART: Server::part(token);         break;
-        case PRIVMSG: Server::privmsg(token);   break;
-        // case KICK: Server::kick(token);      break;
-        // case INVITE: Server::invite(token);  break;
-        // case TOPIC: Server::topic(token);    break;
-        // case MODE: Server::mode(token);      break;
-        // case PING: Server::ping(token);      break;
+        case PASS: pass(token);         break;
+        case NICK: nick(token);         break;
+        case USER: user(token);         break;
+        case QUIT: quit(token);         break;
+        case LIST: list(token);         break;
+        case JOIN: join(token);         break;
+        case PART: part(token);         break;
+        case PRIVMSG: privmsg(token);   break;
+        // case KICK: kick(token);      break;
+        // case INVITE: invite(token);  break;
+        // case TOPIC: topic(token);    break;
+        case MODE: mode(token);         break;
+        // case PING: ping(token);      break;
         default: sendERRRPL(_clients[_iter], SERVERNAME, "421", token[0] + " :Unknown command"); break;
     }
 }

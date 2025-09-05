@@ -45,7 +45,6 @@ class Server
 	static void start(char **argv);
 	static void run();
 
-	static bool checkPassword(const std::string &pw);
 	static bool checkNickname(const std::string &un);
 	static void server_kick(size_t user);
 
@@ -69,7 +68,7 @@ class Server
 	// static void kick(std::vector<std::string> token);
 	// static void invite(std::vector<std::string> token);
 	// static void topic(std::vector<std::string> token);
-	// static void mode(std::vector<std::string> token);
+	static void mode(std::vector<std::string> token);
 	// static void ping(std::vector<std::string> token);
 
 	// dont know yet
@@ -89,4 +88,5 @@ class Server
 	static void message_handling(std::string client_mssg);
 	static bool check_channel_syntax(std::vector<std::string> channel_splits, size_t i);
 	static bool check_privmsg_input(std::vector<std::string> token);
+	static bool check_mode_input(std::vector<std::string> token);
 };

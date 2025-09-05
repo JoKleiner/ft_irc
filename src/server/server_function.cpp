@@ -2,11 +2,6 @@
 #include "Server.hpp"
 #include <regex>
 
-bool Server::checkPassword(const std::string &pw)
-{
-	return (pw == _password);
-}
-
 bool Server::checkNickname(const std::string &u_name)
 {
 	for (size_t i = 0; i < _clients.size(); ++i)
