@@ -1,6 +1,5 @@
 
 #include "Server.hpp"
-#include "Channel.hpp"
 
 constexpr size_t ct_hash(const char* str)
 {

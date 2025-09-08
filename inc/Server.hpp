@@ -1,22 +1,20 @@
 
 #pragma once
 
-#include <iostream>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <poll.h>
-#include <vector>
-#include <map>
-#include <sstream>
-#include <regex>
-#include <numeric>
-
-#include "Client.hpp"
 #include "Channel.hpp"
+#include "Client.hpp"
 #include "Format.hpp"
+#include "Utils.hpp"
+#include <arpa/inet.h>
+#include <iostream>
+#include <map>
+#include <numeric>
+#include <poll.h>
+#include <regex>
+#include <sstream>
+#include <unistd.h>
+#include <vector>
 
-#define SEND(fd, mssg) send(fd, mssg, strlen(mssg), 0)
 #define PASS ct_hash("PASS")
 #define NICK ct_hash("NICK")
 #define USER ct_hash("USER")
@@ -31,11 +29,8 @@
 #define MODE ct_hash("MODE")
 #define PING ct_hash("PING")
 
-#define SERVERNAME "server.name"
-
 std::vector<std::string> split(std::string str, std::string cha);
 std::vector<std::string> token_message(std::string client_mssg);
-void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params = "");
 
 class Channel;
 
@@ -46,7 +41,7 @@ class Server
 	static void run();
 
 	static bool checkNickname(const std::string &un);
-	static void server_kick(size_t user);
+	static void server_kick(size_t user, const std::string &reason = "");
 
   private:
 	static size_t _iter;

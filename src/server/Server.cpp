@@ -11,8 +11,8 @@ std::map<std::string, Channel> Server::_channels;
 void Server::client_message()
 {
 	std::string client_mssg;
-	if(!_clients[_iter].read_client_message(client_mssg))
-		return ;
+	if (!_clients[_iter].read_client_message(client_mssg))
+		return;
 
 	if (client_mssg.empty())
 	{
@@ -27,7 +27,7 @@ void Server::connect_new_client()
 {
 	struct sockaddr_in cli_addr;
 	socklen_t clilen = sizeof(cli_addr);
-	int client = accept(_sock, (struct sockaddr*)&cli_addr, &clilen);
+	int client = accept(_sock, (struct sockaddr *)&cli_addr, &clilen);
 	std::cout << "New client connected (FD: " << client << ")" << std::endl;
 	_fds.push_back({client, POLLIN, 0});
 	Client client_class(client);
@@ -38,7 +38,7 @@ void Server::connect_new_client()
 void Server::iter_vec_pfds()
 {
 	_iter = 0;
-	for (;_iter < _fds.size(); _iter++)
+	for (; _iter < _fds.size(); _iter++)
 	{
 		if (_fds[_iter].revents)
 		{

@@ -1,6 +1,20 @@
 
-#include "Server.hpp"
-#include <algorithm>
+#include "Utils.hpp"
+
+void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params)
+{
+	if (std::all_of(command.begin(), command.end(), [](char c) { return std::isdigit(c); }))
+		SEND(target.get_fd(), (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str());
+	else
+		SEND(target.get_fd(), (":" + prefix + " " + command + " " + params + "\r\n").c_str());
+	std::cout << (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str();
+}
+
+void sendERRRPL(const int &target, const std::string &prefix, const std::string &command, const std::string &params)
+{
+	SEND(target, (":" + prefix + " " + command + " " + params + "\r\n").c_str());
+	std::cout << (":" + prefix + " " + command + " " + params + "\r\n").c_str();
+}
 
 std::vector<std::string> token_message(std::string line)
 {
@@ -19,8 +33,6 @@ std::vector<std::string> token_message(std::string line)
 		else
 			vec_token.push_back(token);
 	}
-	// for(auto &s : vec_token)
-	// 	std::cout << s << " " << std::flush;
 	return (vec_token);
 }
 
@@ -39,13 +51,4 @@ std::vector<std::string> split(std::string str, std::string cha)
 	std::string line = str.substr(pos, comma - pos);
 	split.push_back(line);
 	return (split);
-}
-
-void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params)
-{
-	if (std::all_of(command.begin(), command.end(), [](char c) { return std::isdigit(c); }))
-		SEND(target.get_fd(), (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str());
-	else
-		SEND(target.get_fd(), (":" + prefix + " " + command + " " + params + "\r\n").c_str());
-	std::cout << (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str();
 }
