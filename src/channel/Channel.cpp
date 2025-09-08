@@ -51,9 +51,11 @@ void Channel::leave_channel(const Client &client, const std::string &msg, const 
 
 void Channel::join(Client client, std::string channel_pw)
 {
-	if (!client.registered())
-		sendERRRPL(client, SERVERNAME, "451", ":You have not registered");
-	else if(m_invite_only == true && std::find(m_invite_list.begin(), m_invite_list.end(), client.get_nick())	!= m_invite_list.end())
+	auto inv_client = std::find(m_invite_list.begin(), m_invite_list.end(), client.get_nick());
+
+	if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
+		ChannelWelcomeMessage(client);
+	else if(m_invite_only == true && inv_client != m_invite_list.end())
 		sendERRRPL(client, SERVERNAME, "473", ":ERR_INVITEONLYCHAN");
 	else if (m_chan_limit != 0 && m_cl_list.size() >= m_chan_limit)
 		sendERRRPL(client, SERVERNAME, "471", ":ERR_CHANNELISFULL");
@@ -68,22 +70,26 @@ void Channel::join(Client client, std::string channel_pw)
 		client_spec.fd = client.get_fd();
 		m_cl_list[client.get_nick()] = client_spec;
 
+		if(m_invite_only == true)
+			m_invite_list.erase(inv_client);
+
 		ChannelWelcomeMessage(client);
 	}
 }
 
-const std::string &Channel::get_channel_name() const
-{
+const std::string &Channel::get_channel_name() const {
 	return (m_name);
 }
 
-const std::string &Channel::get_topic() const
-{
+const std::string &Channel::get_topic() const {
 	return (m_topic);
 }
 
-void Channel::set_channel_pw(std::string password)
-{
+const bool &Channel::get_topic_op() const {
+	return (m_topic_operat);
+}
+
+void Channel::set_channel_pw(std::string password) {
 	m_password = password;
 }
 

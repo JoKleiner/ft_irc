@@ -3,7 +3,7 @@
 
 void Channel::send_channel_mode(std::vector<std::string> &token, Client client, char mode_cha)
 {
-	std::string out = client.get_user_whole_str() + " MODE " + token[1] + token[2][0] + mode_cha;
+	std::string out = client.get_user_whole_str() + " MODE " + token[1] + " " + token[2][0] + mode_cha + "\n\r";
 	for (auto it : m_cl_list)
 		SEND(it.second.fd, out.c_str());
 }

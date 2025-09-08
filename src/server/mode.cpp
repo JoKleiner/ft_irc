@@ -46,11 +46,11 @@ void Server::mode(std::vector<std::string> &token)
 	{
 		switch (token[2][i])
 		{
-		case 'i':	chan.InviteMode(token, _clients[_iter]);				break;
-		case 't':	chan.TopicMode(token, _clients[_iter]);					break;
-		case 'k':	chan.KeyMode(token, _clients[_iter], mode_count);		break;
-		case 'o':	chan.OperatMode(token, _clients[_iter], mode_count);	break;
-		case 'l':	chan.LimitMode(token, _clients[_iter], mode_count);		break;
+			case 'i':	chan.InviteMode(token, _clients[_iter]);				break;
+			case 't':	chan.TopicMode(token, _clients[_iter]);					break;
+			case 'k':	chan.KeyMode(token, _clients[_iter], mode_count);		break;
+			case 'o':	chan.OperatMode(token, _clients[_iter], mode_count);	break;
+			case 'l':	chan.LimitMode(token, _clients[_iter], mode_count);		break;
 		}
 	}
 }

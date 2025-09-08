@@ -21,6 +21,7 @@ class Channel
 	void join(Client client, std::string channel_pw);
 	const std::string &get_channel_name() const;
 	const std::string &get_topic() const;
+	const bool &get_topic_op() const;
 	void set_channel_pw(std::string password);
 	void leave_channel(const Client &client, const std::string &msg = "Heute ist nicht alle Tage, ich komm wieder keine Frage.", const std::string &command = "PART");
 	const std::map<std::string, client_speci> &get_cha_cl_list() const;
@@ -32,6 +33,10 @@ class Channel
 	void OperatMode(std::vector<std::string> &token, Client client, size_t &mode_count);
 	void LimitMode(std::vector<std::string> &token, Client client, size_t &mode_count);
 	void send_channel_mode(std::vector<std::string> &token, Client client, char mode_char);
+
+	void KickNick(std::string &nick);
+	void InvNick(std::string &nick);
+	void SetTopic(std::string topic);
 
   private:
 	std::string m_name;

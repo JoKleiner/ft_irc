@@ -38,18 +38,6 @@ void Server::msg_channel(std::string channel, std::string msg)
 	chan.broadcast(cl_name, nmsg);
 }
 
-std::string create_msg(std::vector<std::string> &token)
-{
-	std::string msg;
-	for (size_t i = 2; i < token.size(); i++)
-	{
-		msg += token[i];
-		if (i != token.size())
-			msg += ' ';
-	}
-	return (msg);
-}
-
 bool Server::check_privmsg_input(std::vector<std::string> &token)
 {
 	if (token.size() < 3)

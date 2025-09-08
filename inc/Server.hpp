@@ -65,9 +65,8 @@ class Server
 	static void join(std::vector<std::string> &token);
 	static void part(std::vector<std::string> &token);
 	static void privmsg(std::vector<std::string> &token);
-	static void kick(std::vector<std::string> &token);
-	// static void invite(std::vector<std::string> &token);
-	// static void topic(std::vector<std::string> &token);
+	static void KickInv(std::vector<std::string> &token);
+	static void topic(std::vector<std::string> &token);
 	static void mode(std::vector<std::string> &token);
 	// static void ping(std::vector<std::string> &token);
 
@@ -89,4 +88,5 @@ class Server
 	static bool check_channel_syntax(std::vector<std::string> channel_splits, size_t i);
 	static bool check_privmsg_input(std::vector<std::string> &token);
 	static bool check_mode_input(std::vector<std::string> &token);
+	static bool check_ChaOpCo_input(std::vector<std::string> &token);
 };
