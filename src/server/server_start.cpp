@@ -58,5 +58,6 @@ void Server::start(char **argv)
 
 	_fds.push_back({_sock, POLLIN, 0});
 	_clients.push_back(Client(_sock));
+	_serverStart = std::chrono::system_clock::now();
 	std::cout << "Server runs. Client access with: 'nc localhost " << port << "', Password: '" << _password << "'" << std::endl;
 }

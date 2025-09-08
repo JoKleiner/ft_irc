@@ -27,10 +27,7 @@ void Server::nick(std::vector<std::string> token)
 	{
 		_clients[_iter].set_nick(token[1]);
 		if (_clients[_iter].registered())
-		{
-			_clients[_iter].set_user_whole_str(_clients[_iter].get_nick() + "!" + _clients[_iter].get_user() + "@" + _clients[_iter].get_addr());
-			sendERRRPL(_clients[_iter], SERVERNAME, "001", ":Welcome to the Internet Relay Network " + _clients[_iter].get_user_whole_str());
-		}
+			Server::welcomeMessage();
 	}
 }
 
@@ -50,10 +47,7 @@ void Server::user(std::vector<std::string> token)
 		{
 			_clients[_iter].set_user(token[1], std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string { return a + " " + b; }));
 			if (_clients[_iter].registered())
-			{
-				_clients[_iter].set_user_whole_str(_clients[_iter].get_nick() + "!" + _clients[_iter].get_user() + "@" + _clients[_iter].get_addr());
-				sendERRRPL(_clients[_iter], SERVERNAME, "001", ":Welcome to the Internet Relay Network " + _clients[_iter].get_user_whole_str());
-			}
+				Server::welcomeMessage();
 		}
 	}
 }
@@ -79,4 +73,17 @@ void Server::list(std::vector<std::string> token)
 			sendERRRPL(_clients[_iter], SERVERNAME, "322", name + " # " + std::to_string(channel.get_cha_cl_list().size()) + " :" + channel.get_topic());
 		sendERRRPL(_clients[_iter], SERVERNAME, "323", ":End of LIST");
 	}
+}
+
+void Server::ping(std::vector<std::string> token)
+{
+	if(token.size() < 2)
+		sendERRRPL(_clients[_iter], SERVERNAME, "409", ":No origin specified");
+	else
+		sendERRRPL(_clients[_iter], SERVERNAME, "PONG", ":" + token[1]);
+}
+
+void Server::sendPing(const Client &client)
+{
+	sendERRRPL(client, SERVERNAME, "PING", ":" SERVERNAME);
 }

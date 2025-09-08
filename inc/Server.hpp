@@ -50,6 +50,7 @@ class Server
 	static std::vector<Client> _clients;
 	static std::map<std::string, Channel> _channels;
 	static std::string _password;
+	static time_point _serverStart;
 
 	// Commands
 	static void pass(std::vector<std::string> token);
@@ -64,6 +65,7 @@ class Server
 	// static void invite(std::vector<std::string> token);
 	// static void topic(std::vector<std::string> token);
 	static void mode(std::vector<std::string> token);
+	static void ping(std::vector<std::string> token);
 	// static void ping(std::vector<std::string> token);
 
 	// dont know yet
@@ -84,4 +86,7 @@ class Server
 	static bool check_channel_syntax(std::vector<std::string> channel_splits, size_t i);
 	static bool check_privmsg_input(std::vector<std::string> token);
 	static bool check_mode_input(std::vector<std::string> token);
+	static void checkActivity();
+	static void welcomeMessage();
+	static void sendPing(const Client &client);
 };

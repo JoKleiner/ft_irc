@@ -3,7 +3,7 @@
 
 std::string g_server_password;
 
-Client::Client(int fd) : m_pw(false), m_fds_num(fd), m_user(), m_nick()
+Client::Client(int fd) : m_pw(false), m_fds_num(fd), m_user(), m_nick(), m_last_send_time(std::chrono::system_clock::now()), m_joined_time(std::chrono::system_clock::now())
 {
 }
 
@@ -82,4 +82,19 @@ const std::string &Client::get_user_whole_str() const
 void Client::set_user_whole_str(const std::string &str)
 {
 	m_user_whole_str = str;
+}
+
+void Client::set_last_send_time(time_point time)
+{
+	m_last_send_time = time;
+}
+
+const time_point &Client::get_last_send_time() const
+{
+	return (m_last_send_time);
+}
+
+const time_point &Client::get_joined_time() const
+{
+	return (m_joined_time);
 }
