@@ -36,10 +36,10 @@ void Server::KickInv(std::vector<std::string> &token)
 	if (token.size() > 3)
 		out += " " + token[3];
 	out += "\n\r";
-	Channel &chan = _channels.find(token[2])->second;
+	Channel &chan = token[0] == "INVITE" ? _channels.find(token[2])->second : _channels.find(token[1])->second;
 	for (auto it : chan.get_cha_cl_list())
 		SEND(it.second.fd, out.c_str());
-
+	
 	if (token[0] == "KICK")
 		chan.KickNick(token[2]);
 	else

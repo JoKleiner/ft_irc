@@ -31,19 +31,15 @@ Channel::Channel(std::string name, Client client) :
 	ChannelWelcomeMessage(client);
 }
 
-const std::map<std::string, client_speci> &Channel::get_cha_cl_list() const{
-	return (m_cl_list);
-}
-
 void Channel::leave_channel(const Client &client, const std::string &msg, const std::string &command)
 {
 	if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
 	{
-		m_cl_list.erase(client.get_nick());
 		if (command == "PART")
 			broadcast(client.get_nick(), (":" + client.get_user_whole_str() + " " + command + " " + get_channel_name() + " :" + msg + "\r\n").c_str());
 		else
 			broadcast(client.get_nick(), (":" + client.get_user_whole_str() + " " + command + " :" + msg + "\r\n").c_str());
+		m_cl_list.erase(client.get_nick());
 	}
 	else
 		sendERRRPL(client, SERVERNAME, "442", get_channel_name() + " :You're not on that channel");
@@ -55,7 +51,7 @@ void Channel::join(Client client, std::string channel_pw)
 
 	if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
 		ChannelWelcomeMessage(client);
-	else if(m_invite_only == true && inv_client != m_invite_list.end())
+	else if(m_invite_only && inv_client == m_invite_list.end())
 		sendERRRPL(client, SERVERNAME, "473", ":ERR_INVITEONLYCHAN");
 	else if (m_chan_limit != 0 && m_cl_list.size() >= m_chan_limit)
 		sendERRRPL(client, SERVERNAME, "471", ":ERR_CHANNELISFULL");
@@ -63,8 +59,6 @@ void Channel::join(Client client, std::string channel_pw)
 		sendERRRPL(client, SERVERNAME, "464", ":Password incorrect");
 	else
 	{
-		if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
-			return;
 		client_speci client_spec;
 		client_spec.ch_operator = false;
 		client_spec.fd = client.get_fd();
@@ -75,6 +69,10 @@ void Channel::join(Client client, std::string channel_pw)
 
 		ChannelWelcomeMessage(client);
 	}
+}
+
+const std::map<std::string, client_speci> &Channel::get_cha_cl_list() const{
+	return (m_cl_list);
 }
 
 const std::string &Channel::get_channel_name() const {
@@ -102,13 +100,3 @@ void Channel::broadcast(std::string sender, std::string msg) const
 			SEND(specification.fd, msg.c_str());
 	}
 }
-
-// operator
-
-/*
-Then, you have to implement the commands that are specific to channel
-operators:
-∗ KICK - Eject a client from the channel
-∗ INVITE - Invite a client to a channel
-∗ TOPIC - Change or view the channel topic
-*/

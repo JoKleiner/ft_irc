@@ -32,7 +32,7 @@ class Channel
 	void KeyMode(std::vector<std::string> &token, Client client, size_t &mode_count);
 	void OperatMode(std::vector<std::string> &token, Client client, size_t &mode_count);
 	void LimitMode(std::vector<std::string> &token, Client client, size_t &mode_count);
-	void send_channel_mode(std::vector<std::string> &token, Client client, char mode_char);
+	void send_channel_mode(std::vector<std::string> &token, Client client, std::string mode);
 
 	void KickNick(std::string &nick);
 	void InvNick(std::string &nick);

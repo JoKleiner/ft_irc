@@ -10,7 +10,7 @@ constexpr size_t ct_hash(const char* str)
     return(hash);
 }
 
-void Server::switchi(std::vector<std::string> &token)
+void Server::find_command(std::vector<std::string> &token)
 {
     switch(ct_hash(token[0].c_str()))
     {
@@ -42,6 +42,9 @@ void Server::message_handling(std::string client_mssg)
         auto token = token_message(lines[i]);
         if(token.empty())
             continue;
-        switchi(token);
+        auto hash_check = ct_hash(token[0].c_str());
+        if (!_clients[_iter].registered() && hash_check != PASS && hash_check != NICK && hash_check != USER)
+            sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
+        find_command(token);
     }
 }

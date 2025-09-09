@@ -2,6 +2,21 @@
 #include "Server.hpp"
 #include <algorithm>
 
+bool read_message(std::string &client_mssg, int fds)
+{
+	ssize_t bytes = 1;
+
+	while (client_mssg.find('\n') == std::string::npos && bytes > 0)
+	{
+		char buff[1024] = {0};
+		bytes = read(fds, buff, sizeof(buff) - 1);
+		client_mssg = client_mssg + buff;
+	}
+	if (bytes < 0)
+		return (false);
+	return (true);
+}
+
 std::vector<std::string> token_message(std::string line)
 {
 	std::vector<std::string> vec_token;
@@ -19,8 +34,6 @@ std::vector<std::string> token_message(std::string line)
 		else
 			vec_token.push_back(token);
 	}
-	// for(auto &s : vec_token)
-	// 	std::cout << s << " " << std::flush;
 	return (vec_token);
 }
 
@@ -41,11 +54,19 @@ std::vector<std::string> split(std::string str, std::string cha)
 	return (split);
 }
 
+bool check_pw_syntax(std::string line)
+{
+	for (size_t i = 0; i < line.size(); i++)
+		if (!std::isprint(line[i]) || line[i] == ' ')
+            return false;
+	return true;
+}	
+
 void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params)
 {
 	if (std::all_of(command.begin(), command.end(), [](char c) { return std::isdigit(c); }))
 		SEND(target.get_fd(), (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str());
 	else
 		SEND(target.get_fd(), (":" + prefix + " " + command + " " + params + "\r\n").c_str());
-	std::cout << (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str();
+	//std::cout << (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str();
 }

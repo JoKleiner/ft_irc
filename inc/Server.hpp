@@ -33,8 +33,10 @@
 
 #define SERVERNAME "server.name"
 
+bool read_message(std::string &client_mssg, int fds);
 std::vector<std::string> split(std::string str, std::string cha);
 std::vector<std::string> token_message(std::string client_mssg);
+bool check_pw_syntax(std::string line);
 void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params = "");
 
 class Channel;
@@ -74,7 +76,7 @@ class Server
 	static void serverLoop();
 	static void cleanup();
 	// static void send_err();
-	static void switchi(std::vector<std::string> &token);
+	static void find_command(std::vector<std::string> &token);
 	static void create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits);
 	static void leave_all_channel(const Client &client, const std::string &command = "PART", const std::string &msg = ":Heute ist nicht alle Tage, ich komm wieder keine Frage.");
 	static void msg_channel(std::string channel, std::string msg);
