@@ -64,7 +64,8 @@ class Server
 	static void join(const std::vector<std::string> &token);
 	static void part(const std::vector<std::string> &token);
 	static void privmsg(const std::vector<std::string> &token);
-	static void KickInv(const std::vector<std::string> &token);
+	static void kick(const std::vector<std::string> &token);
+	static void invite(const std::vector<std::string> &token);
 	static void topic(const std::vector<std::string> &token);
 	static void mode(const std::vector<std::string> &token);
 	static void ping(const std::vector<std::string> &token);

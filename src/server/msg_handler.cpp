@@ -22,8 +22,8 @@ void Server::find_command(const std::vector<std::string> &token)
         case JOIN: join(token);         break;
         case PART: part(token);         break;
         case PRIVMSG: privmsg(token);   break;
-        case KICK: KickInv(token);      break;
-        case INVITE: KickInv(token);    break;
+        case KICK: kick(token);         break;
+        case INVITE: invite(token);     break;
         case TOPIC: topic(token);       break;
         case MODE: mode(token);         break;
         case PING: ping(token);         break;

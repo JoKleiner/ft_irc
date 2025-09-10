@@ -127,7 +127,7 @@ void Channel::rpl_chan_modi(const std::vector<std::string> &token, Client client
 		out += m_chan_limit > 0 	? "l" : "";
 		out += !m_password.empty() 	? "k" : "";
 
-		out += m_chan_limit > 0 	? " " + m_chan_limit : "";
+		out += m_chan_limit > 0 	? " " + std::to_string(m_chan_limit) : "";
 		out += !m_password.empty() 	? " " + m_password 	 : "";
 
 	}
