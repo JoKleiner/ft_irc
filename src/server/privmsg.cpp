@@ -1,7 +1,7 @@
 
 #include "Server.hpp"
 
-void Server::msg_client(std::string cl_name, std::string msg)
+void Server::msg_client(const std::string &cl_name, const std::string &msg)
 {
 	for (auto &iter : _clients)
 	{
@@ -15,7 +15,7 @@ void Server::msg_client(std::string cl_name, std::string msg)
 	sendERRRPL(_clients[_iter], SERVERNAME, "401", cl_name + " :No such nick");
 }
 
-void Server::msg_channel(std::string channel, std::string msg)
+void Server::msg_channel(const std::string &channel, const std::string &msg)
 {
 	std::string cl_name = _clients[_iter].get_nick();
 
@@ -37,7 +37,7 @@ void Server::msg_channel(std::string channel, std::string msg)
 	chan.broadcast(cl_name, nmsg);
 }
 
-std::string create_msg(std::vector<std::string> token)
+std::string create_msg(const std::vector<std::string> &token)
 {
 	std::string msg;
 	for (size_t i = 2; i < token.size(); i++)
@@ -49,7 +49,7 @@ std::string create_msg(std::vector<std::string> token)
 	return (msg);
 }
 
-bool Server::check_privmsg_input(std::vector<std::string> token)
+bool Server::check_privmsg_input(const std::vector<std::string> &token)
 {
 	if (token.size() < 3)
 	{
@@ -62,7 +62,7 @@ bool Server::check_privmsg_input(std::vector<std::string> token)
 	return true;
 }
 
-void Server::privmsg(std::vector<std::string> token)
+void Server::privmsg(const std::vector<std::string> &token)
 {
 	if (!check_privmsg_input(token))
 		return;

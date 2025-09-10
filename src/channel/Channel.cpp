@@ -3,8 +3,8 @@
 
 void Channel::ChannelWelcomeMessage(const Client &client)
 {
-	sendERRRPL(client, client.get_user_whole_str(), "JOIN", ":" + get_channel_name());
-	broadcast(client.get_nick(), ":" + client.get_user_whole_str() + " JOIN :" + get_channel_name() + "\r\n");
+	for(auto & [name, spec] : m_cl_list)
+		SEND(spec.fd, (":" + client.get_user_whole_str() + " JOIN :" + get_channel_name() + "\r\n").c_str());
 	if (m_topic.empty())
 		sendERRRPL(client, SERVERNAME, "331", this->get_channel_name() + " :No topic set");
 	else

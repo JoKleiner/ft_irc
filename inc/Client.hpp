@@ -31,6 +31,8 @@ class Client
 	const time_point &get_joined_time() const;
 
 	bool read_client_message(std::string &client_mssg);
+	void set_ping_send(const bool &send);
+	const bool &get_ping_send() const;
 
   private:
 	bool m_pw;
@@ -42,4 +44,5 @@ class Client
 	std::string m_user_whole_str;
 	time_point m_last_send_time;
 	time_point m_joined_time;
+	bool m_ping_send;
 };

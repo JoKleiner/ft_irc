@@ -3,7 +3,7 @@
 
 std::string g_server_password;
 
-Client::Client(int fd) : m_pw(false), m_fds_num(fd), m_user(), m_nick(), m_last_send_time(std::chrono::system_clock::now()), m_joined_time(std::chrono::system_clock::now())
+Client::Client(int fd) : m_pw(false), m_fds_num(fd), m_user(), m_nick(), m_last_send_time(std::chrono::system_clock::now()), m_joined_time(std::chrono::system_clock::now()), m_ping_send(false)
 {
 }
 
@@ -97,4 +97,14 @@ const time_point &Client::get_last_send_time() const
 const time_point &Client::get_joined_time() const
 {
 	return (m_joined_time);
+}
+
+const bool &Client::get_ping_send() const
+{
+	return (m_ping_send);
+}
+
+void Client::set_ping_send(const bool &send)
+{
+	m_ping_send = send;
 }

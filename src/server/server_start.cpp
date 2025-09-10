@@ -3,16 +3,16 @@
 
 /*
 	socket can accept connections over the network.
-    AF_INET: IPv4
+	AF_INET: IPv4
 
-    int opt = 1: SO_REUSEADDR should be enabled
-    setsockopt() expects 4 bytes. Therefore, use an integer instead of a bool.
-    SOL_SOCKET: Category of the option (here: socket level).
-    SO_REUSEADDR: Allows restarting the server without waiting for the port to be released.
+	int opt = 1: SO_REUSEADDR should be enabled
+	setsockopt() expects 4 bytes. Therefore, use an integer instead of a bool.
+	SOL_SOCKET: Category of the option (here: socket level).
+	SO_REUSEADDR: Allows restarting the server without waiting for the port to be released.
 
-	INADDR_ANY: listen on all network interfaces (e.g. localhost and external IPs).   
-    htons(8080): Port 8080, converted to network byte order (Big Endian).
-	
+	INADDR_ANY: listen on all network interfaces (e.g. localhost and external IPs).
+	htons(8080): Port 8080, converted to network byte order (Big Endian).
+
 	sockaddr: Initialize a structure containing the IP address and port.
 
 	Bind: bind the socket to the configured address
@@ -24,14 +24,14 @@ static bool check_serv_pw(std::string line)
 {
 	for (size_t i = 0; i < line.size(); i++)
 		if (!std::isprint(line[i]) || line[i] == ' ')
-            return false;
+			return false;
 	return true;
-}	
+}
 
 void Server::start(char **argv)
 {
 	int port;
-	
+
 	port = std::stoi(argv[1]);
 	if (port < 1024 || port > 49151)
 		throw(std::runtime_error("Port should be in between 1024-49151"));
@@ -40,21 +40,21 @@ void Server::start(char **argv)
 	_password = argv[2];
 
 	_sock = socket(AF_INET, SOCK_STREAM, 0);
-    int opt = 1;
-    setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    
-    sockaddr_in addr{};                             
-    addr.sin_family = AF_INET;                      
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(port);      
+	int opt = 1;
+	setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    if (bind(_sock, (sockaddr*)&addr, sizeof(addr)) < 0)
+	sockaddr_in addr{};
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_port = htons(port);
+
+	if (bind(_sock, (sockaddr *)&addr, sizeof(addr)) < 0)
 	{
 		close(_sock);
 		throw(std::runtime_error("Error: bind"));
 	}
-        
-    listen(_sock, SOMAXCONN);
+
+	listen(_sock, SOMAXCONN);
 
 	_fds.push_back({_sock, POLLIN, 0});
 	_clients.push_back(Client(_sock));

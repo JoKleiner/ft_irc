@@ -1,7 +1,7 @@
 
 #include "Server.hpp"
 
-bool Server::check_mode_input(std::vector<std::string> token)
+bool Server::check_mode_input(const std::vector<std::string> &token)
 {
 	if (token.size() < 3) {
 		std::string out = "461 ERR_NEEDMOREPARAMS\n\r";
@@ -47,7 +47,7 @@ bool Server::check_mode_input(std::vector<std::string> token)
 	461	ERR_NEEDMOREPARAMS		Parameter fehlen				(MODE #chat +o)
 */
 
-void Server::mode(std::vector<std::string> token)
+void Server::mode(const std::vector<std::string> &token)
 {
 	if (!check_mode_input(token))
 		return;
