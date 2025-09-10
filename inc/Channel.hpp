@@ -35,6 +35,7 @@ class Channel
 	void OperatMode(const std::vector<std::string> &token, Client client, size_t &mode_count);
 	void LimitMode(const std::vector<std::string> &token, Client client, size_t &mode_count);
 	void send_channel_mode(const std::vector<std::string> &token, Client client, std::string mode);
+	void rpl_chan_modi(const std::vector<std::string> &token, Client client);
 
 	void KickNick(const std::string &nick);
 	void InvNick(const std::string &nick);

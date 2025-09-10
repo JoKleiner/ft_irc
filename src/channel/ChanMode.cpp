@@ -115,3 +115,21 @@ void Channel::LimitMode(const std::vector<std::string> &token, Client client, si
 		mode_count++;
 	}
 }
+
+void Channel::rpl_chan_modi(const std::vector<std::string> &token, Client client)
+{
+	std::string out = token[1];
+	if (m_topic_operat || m_invite_only || m_chan_limit > 0 || !m_password.empty())
+	{
+		out += " +";
+		out += m_topic_operat 		? "t" : "";
+		out += m_invite_only  		? "i" : "";
+		out += m_chan_limit > 0 	? "l" : "";
+		out += !m_password.empty() 	? "k" : "";
+
+		out += m_chan_limit > 0 	? " " + m_chan_limit : "";
+		out += !m_password.empty() 	? " " + m_password 	 : "";
+
+	}
+	sendERRRPL(client, SERVERNAME, "324", out);
+}

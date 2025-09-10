@@ -26,8 +26,8 @@ void Server::find_command(const std::vector<std::string> &token)
         case INVITE: KickInv(token);    break;
         case TOPIC: topic(token);       break;
         case MODE: mode(token);         break;
-        case PING: ping(token);      break;
-        case PONG: pong(token);      break;
+        case PING: ping(token);         break;
+        case PONG: pong(token);         break;
         default: sendERRRPL(_clients[_iter], SERVERNAME, "421", token[0] + " :Unknown command"); break;
     }
 }
