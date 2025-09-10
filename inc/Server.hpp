@@ -79,6 +79,7 @@ class Server
 	static void msg_channel(const std::string &channel, const std::string &msg);
 	static void msg_client(const std::string &cl_name, const std::string &msg);
 
+
 	// Utilities
 	static void iter_vec_pfds();
 	static void connect_new_client();
