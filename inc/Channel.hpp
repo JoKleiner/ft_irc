@@ -2,7 +2,8 @@
 #pragma once
 
 #include "Client.hpp"
-#include "Server.hpp"
+#include "Utils.hpp"
+#include <string>
 #include <map>
 #include <vector>
 

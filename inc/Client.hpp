@@ -1,7 +1,10 @@
 
 #pragma once
 
+#include <chrono>
 #include <iostream>
+
+using time_point = std::chrono::time_point<std::chrono::system_clock>;
 
 class Client
 {
@@ -23,8 +26,13 @@ class Client
 	const bool &pw_set() const;
 	void set_user_whole_str(const std::string &str);
 	const std::string &get_user_whole_str() const;
+	void set_last_send_time(time_point time = std::chrono::system_clock::now());
+	const time_point &get_last_send_time() const;
+	const time_point &get_joined_time() const;
 
 	bool read_client_message(std::string &client_mssg);
+	void set_ping_send(const bool &send);
+	const bool &get_ping_send() const;
 
   private:
 	bool m_pw;
@@ -34,4 +42,7 @@ class Client
 	std::string m_nick;
 	std::string m_addr;
 	std::string m_user_whole_str;
+	time_point m_last_send_time;
+	time_point m_joined_time;
+	bool m_ping_send;
 };

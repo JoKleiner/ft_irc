@@ -5,7 +5,7 @@ void Channel::send_channel_mode(std::vector<std::string> token, Client client, s
 {
 	std::string out = client.get_user_whole_str() + " MODE " + token[1] + token[2][0] + token[2][i];
 	for (auto it : m_cl_list)
-		SEND(it.second.fd, out.c_str());
+		sendERRRPL(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + ":" + token[2][0] + token[2][i]);
 }
 
 void Channel::InviteMode(std::vector<std::string> token, Client client, size_t i)

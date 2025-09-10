@@ -1,6 +1,5 @@
 
 #include "Server.hpp"
-#include <regex>
 
 bool Server::checkNickname(const std::string &u_name)
 {
@@ -12,16 +11,18 @@ bool Server::checkNickname(const std::string &u_name)
 	return (true);
 }
 
-void Server::server_kick(size_t user)
+void Server::server_kick(size_t user, const std::string &reason)
 {
 	std::cout << "Client disconnected (FD: " << _fds[user].fd << ")" << std::endl;
-	Server::leave_all_channel(_clients[user], "QUIT");
+	Server::leave_all_channel(_clients[user], "KICK");
+	if(!reason.empty())
+		SEND(_clients[user].get_fd(), reason.c_str());
 	close(_fds[user].fd);
 	_fds.erase(_fds.begin() + user);
 	_clients.erase(_clients.begin() + user);
 }
 
-void Server::part(std::vector<std::string> token)
+void Server::part(const std::vector<std::string> &token)
 {
 	if (!_clients[_iter].registered())
 		sendERRRPL(_clients[_iter], SERVERNAME, "421", ":You have not registered");

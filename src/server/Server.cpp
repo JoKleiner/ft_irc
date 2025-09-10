@@ -7,12 +7,13 @@ std::string Server::_password = "";
 std::vector<pollfd> Server::_fds;
 std::vector<Client> Server::_clients;
 std::map<std::string, Channel> Server::_channels;
+time_point Server::_serverStart;
 
 void Server::client_message()
 {
 	std::string client_mssg;
-	if(!_clients[_iter].read_client_message(client_mssg))
-		return ;
+	if (!_clients[_iter].read_client_message(client_mssg))
+		return;
 
 	if (client_mssg.empty())
 	{
@@ -27,7 +28,7 @@ void Server::connect_new_client()
 {
 	struct sockaddr_in cli_addr;
 	socklen_t clilen = sizeof(cli_addr);
-	int client = accept(_sock, (struct sockaddr*)&cli_addr, &clilen);
+	int client = accept(_sock, (struct sockaddr *)&cli_addr, &clilen);
 	std::cout << "New client connected (FD: " << client << ")" << std::endl;
 	_fds.push_back({client, POLLIN, 0});
 	Client client_class(client);
@@ -38,7 +39,7 @@ void Server::connect_new_client()
 void Server::iter_vec_pfds()
 {
 	_iter = 0;
-	for (;_iter < _fds.size(); _iter++)
+	for (; _iter < _fds.size(); _iter++)
 	{
 		if (_fds[_iter].revents)
 		{
@@ -50,11 +51,37 @@ void Server::iter_vec_pfds()
 	}
 }
 
+void Server::checkActivity()
+{
+	auto now = std::chrono::system_clock::now();
+	size_t count = -1;
+	for (auto &c : _clients)
+	{
+		++count;
+		if (count == 0)
+			continue;
+		if (c.registered())
+		{
+			auto inactive = now - c.get_last_send_time();
+			if ( inactive > std::chrono::minutes(10))
+				server_kick(count, "ERROR :Closing Link: " + c.get_user_whole_str() + " (Ping timeout: 300)\r\n");
+			else if(inactive > std::chrono::minutes(5) && !c.get_ping_send())
+				sendPing(c);
+		}
+		else
+		{
+			if (now - c.get_joined_time() > std::chrono::seconds(20))
+				server_kick(count, "ERROR :Closing Link (Connection timeout: 50)\r\n");
+		}
+	}
+}
+
 void Server::serverLoop()
 {
 	while (true)
 	{
 		int ret = poll(_fds.data(), _fds.size(), 0);
+		checkActivity();
 		if (ret == 0)
 			continue;
 		if (ret < 0)
@@ -80,4 +107,37 @@ void Server::run()
 {
 	serverLoop();
 	cleanup();
+}
+
+void Server::welcomeMessage()
+{
+	_clients[_iter].set_user_whole_str(_clients[_iter].get_nick() + "!" + _clients[_iter].get_user() + "@" + _clients[_iter].get_addr());
+	sendERRRPL(_clients[_iter], SERVERNAME, "001", RPL_WELCOME);
+	sendERRRPL(_clients[_iter], SERVERNAME, "002", RPL_YOURHOST);
+	sendERRRPL(_clients[_iter], SERVERNAME, "003", RPL_CREATED);
+	sendERRRPL(_clients[_iter], SERVERNAME, "004", RPL_MYINFO);
+	sendERRRPL(_clients[_iter], SERVERNAME, "375", ":- " SERVERNAME " Message of the day - ");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-  _______________________________________");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":- / Penguin Trivia #46:                   \\");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":- |                                       |");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":- | Animals who are not penguins can only |");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":- | wish they were.                       |");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":- |                                       |");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":- \\ -- Chicago Reader 10/15/82            /");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-  ---------------------------------------");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":- \\                             .       .");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-  \\                           / `.   .' \" ");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-   \\                  .---.  <    > <    >  .---.");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-    \\                 |    \\  \\ - ~ ~ - /  /    |");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-          _____          ..-~             ~-..-~");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-         |     |   \\~~~\\.'                    `./~~~/");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-        ---------   \\__/                        \\__/");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-       .'  O    \\     /               /       \\  \"");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-      (_____,    `._.'               |         }  \\/~~~/");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-       `----.          /       }     |        /    \\__/");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-             `-.      |       /      |       /      `. ,~~|");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-                 ~-.__|      /_ - ~ ^|      /- _      `..-'");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-                      |     /        |     /     ~-.     `-. _  _  _");
+	sendERRRPL(_clients[_iter], SERVERNAME, "372", ":-                      |_____|        |_____|         ~ - . _ _ _ _ _>");
+	sendERRRPL(_clients[_iter], SERVERNAME, "376", ":End of MOTD command");
 }

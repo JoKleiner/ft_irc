@@ -1,8 +1,7 @@
 
 #include "Server.hpp"
-#include <regex>
 
-void Server::create_channel(std::vector<std::string> channel_splits, size_t i, std::vector<std::string> password_splits)
+void Server::create_channel(const std::vector<std::string> &channel_splits, size_t i, const std::vector<std::string> &password_splits)
 {
 	Channel chan(channel_splits[i], _clients[_iter]);
 
@@ -12,7 +11,7 @@ void Server::create_channel(std::vector<std::string> channel_splits, size_t i, s
 	_channels.insert({chan.get_channel_name(), chan});
 }
 
-bool Server::check_channel_syntax(std::vector<std::string> channel_splits, size_t i)
+bool Server::check_channel_syntax(const std::vector<std::string> &channel_splits, size_t i)
 {
 	if (!std::regex_match(channel_splits[i], std::regex("^[#+&][A-Za-z0-9\\-_\\^\\[\\]\\`\\{\\}]{1,49}$")))
 	{
@@ -35,7 +34,7 @@ void Server::leave_all_channel(const Client &client, const std::string &command,
 	}
 }
 
-void Server::join(std::vector<std::string> token)
+void Server::join(const std::vector<std::string> &token)
 {
 	if (!_clients[_iter].registered())
 		sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
