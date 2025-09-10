@@ -91,6 +91,7 @@ class Server
 	static bool check_privmsg_input(const std::vector<std::string> &token);
 	static bool check_mode_input(const std::vector<std::string> &token);
 	static bool check_ChaOpCo_input(const std::vector<std::string> &token);
+	static bool check_kick(const std::vector<std::string> &token, std::string &channel_splits, std::string &nick_splits);
 	static void checkActivity();
 	static void welcomeMessage();
 	static void sendPing(Client &client);
