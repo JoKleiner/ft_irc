@@ -38,6 +38,8 @@ bool Server::check_kick(const std::vector<std::string> &token, std::string &chan
 	client = clie_list.find(nick_splits);
 	if (client == clie_list.end())
 		return (sendERRRPL(_clients[_iter], SERVERNAME, "441", token[0] + " :ERR_USERNOTINCHANNEL"), false);
+	if (client->second.ch_operator)
+		return (sendERRRPL(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_BIGGERCHANOPRIVSNEEDED"), false);
 	return true;
 }
 
