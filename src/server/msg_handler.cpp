@@ -1,6 +1,5 @@
 
 #include "Server.hpp"
-#include "Channel.hpp"
 
 constexpr size_t ct_hash(const char* str)
 {
@@ -10,8 +9,9 @@ constexpr size_t ct_hash(const char* str)
     return(hash);
 }
 
-void Server::find_command(std::vector<std::string> &token)
+void Server::find_command(const std::vector<std::string> &token)
 {
+    _clients[_iter].set_last_send_time();
     switch(ct_hash(token[0].c_str()))
     {
         case PASS: pass(token);         break;
@@ -26,12 +26,13 @@ void Server::find_command(std::vector<std::string> &token)
         case INVITE: KickInv(token);    break;
         case TOPIC: topic(token);       break;
         case MODE: mode(token);         break;
-        // case PING: ping(token);      break;
+        case PING: ping(token);      break;
+        case PONG: pong(token);      break;
         default: sendERRRPL(_clients[_iter], SERVERNAME, "421", token[0] + " :Unknown command"); break;
     }
 }
 
-void Server::message_handling(std::string client_mssg)
+void Server::message_handling(const std::string &client_mssg)
 {
     std::cout << "Client (FD " << _fds[_iter].fd << "): " << client_mssg << std::flush;
     
@@ -44,7 +45,10 @@ void Server::message_handling(std::string client_mssg)
             continue;
         auto hash_check = ct_hash(token[0].c_str());
         if (!_clients[_iter].registered() && hash_check != PASS && hash_check != NICK && hash_check != USER)
+        {
             sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
+            continue;
+        }
         find_command(token);
     }
 }

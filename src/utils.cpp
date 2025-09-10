@@ -1,6 +1,20 @@
 
-#include "Server.hpp"
-#include <algorithm>
+#include "Utils.hpp"
+
+void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params)
+{
+	if (std::all_of(command.begin(), command.end(), [](char c) { return std::isdigit(c); }))
+		SEND(target.get_fd(), (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str());
+	else
+		SEND(target.get_fd(), (":" + prefix + " " + command + " " + params + "\r\n").c_str());
+	std::cout << (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str();
+}
+
+void sendERRRPL(const int &target, const std::string &prefix, const std::string &command, const std::string &params)
+{
+	SEND(target, (":" + prefix + " " + command + " " + params + "\r\n").c_str());
+	std::cout << (":" + prefix + " " + command + " " + params + "\r\n").c_str();
+}
 
 bool read_message(std::string &client_mssg, int fds)
 {
@@ -61,12 +75,3 @@ bool check_pw_syntax(std::string line)
             return false;
 	return true;
 }	
-
-void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params)
-{
-	if (std::all_of(command.begin(), command.end(), [](char c) { return std::isdigit(c); }))
-		SEND(target.get_fd(), (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str());
-	else
-		SEND(target.get_fd(), (":" + prefix + " " + command + " " + params + "\r\n").c_str());
-	//std::cout << (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str();
-}

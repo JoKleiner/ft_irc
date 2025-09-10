@@ -1,14 +1,13 @@
 
 #include "Channel.hpp"
 
-void Channel::send_channel_mode(std::vector<std::string> &token, Client client, std::string mode)
+void Channel::send_channel_mode(const std::vector<std::string> &token, Client client, std::string mode)
 {
-	std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " " + token[2][0] + mode + "\n\r";
 	for (auto it : m_cl_list)
-		SEND(it.second.fd, out.c_str());
+		sendERRRPL(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " " + token[2][0] + mode);
 }
 
-void Channel::InviteMode(std::vector<std::string> &token, Client client)
+void Channel::InviteMode(const std::vector<std::string> &token, Client client)
 {
 	if (token[2][0] == '-')
 		m_invite_only = false;
@@ -17,7 +16,7 @@ void Channel::InviteMode(std::vector<std::string> &token, Client client)
 	send_channel_mode(token, client, "i");
 }
 
-void Channel::TopicMode(std::vector<std::string> &token, Client client)
+void Channel::TopicMode(const std::vector<std::string> &token, Client client)
 {
 	if (token[2][0] == '-')
 		m_topic_operat = false;
@@ -38,11 +37,11 @@ static bool check_channel_pw(std::string line)
 	return true;
 }
 
-void Channel::KeyMode(std::vector<std::string> &token, Client client, size_t &mode_count)
+void Channel::KeyMode(const std::vector<std::string> &token, Client client, size_t &mode_count)
 {
 	if (token[2][0] == '-')
 	{
-		std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " :-k" + "\n\r";
+		std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " -k" + "\n\r";
 		m_password = "";
 		for (auto it : m_cl_list)
 			SEND(it.second.fd, out.c_str());
@@ -54,14 +53,14 @@ void Channel::KeyMode(std::vector<std::string> &token, Client client, size_t &mo
 	else
 	{
 		m_password = token[mode_count];
-		std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " :+k " + m_password + "\n\r";
+		std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " +k " + m_password + "\n\r";
 		for (auto it : m_cl_list)
 			SEND(it.second.fd, out.c_str());
 		mode_count++;
 	}
 }
 
-void Channel::OperatMode(std::vector<std::string> &token, Client client, size_t &mode_count)
+void Channel::OperatMode(const std::vector<std::string> &token, Client client, size_t &mode_count)
 {
 	if (token.size() < mode_count + 1)
 		sendERRRPL(client, SERVERNAME, "461", "MODE :ERR_NEEDMOREPARAMS +-o");
@@ -74,7 +73,7 @@ void Channel::OperatMode(std::vector<std::string> &token, Client client, size_t 
 		else
 		{
 			m_cl_list.find(token[mode_count])->second.ch_operator = false;
-			std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " :-o " + token[mode_count] + "\n\r";
+			std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " -o " + token[mode_count] + "\n\r";
 			for (auto it : m_cl_list)
 				SEND(it.second.fd, out.c_str());
 		}
@@ -86,7 +85,7 @@ void Channel::OperatMode(std::vector<std::string> &token, Client client, size_t 
 		else
 		{
 			m_cl_list.find(token[mode_count])->second.ch_operator = true;
-			std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " :+o " + token[mode_count] + "\n\r";
+			std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " +o " + token[mode_count] + "\n\r";
 			for (auto it : m_cl_list)
 				SEND(it.second.fd, out.c_str());
 		}
@@ -94,7 +93,7 @@ void Channel::OperatMode(std::vector<std::string> &token, Client client, size_t 
 	}
 }
 
-void Channel::LimitMode(std::vector<std::string> &token, Client client, size_t &mode_count)
+void Channel::LimitMode(const std::vector<std::string> &token, Client client, size_t &mode_count)
 {
 	if (token[2][0] == '-')
 	{
@@ -110,7 +109,7 @@ void Channel::LimitMode(std::vector<std::string> &token, Client client, size_t &
 	else
 	{
 		m_chan_limit = stoi(token[mode_count]);
-		std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " :+l " + token[mode_count] + "\n\r";
+		std::string out = ":" + client.get_user_whole_str() + " MODE " + token[1] + " +l " + token[mode_count] + "\n\r";
 		for (auto it : m_cl_list)
 			SEND(it.second.fd, out.c_str());
 		mode_count++;

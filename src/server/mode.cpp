@@ -1,7 +1,7 @@
 
 #include "Server.hpp"
 
-bool Server::check_mode_input(std::vector<std::string> &token)
+bool Server::check_mode_input(const std::vector<std::string> &token)
 {
 	if (token.size() < 3) 
 		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", "MODE :ERR_NEEDMOREPARAMS"), false);
@@ -36,7 +36,7 @@ bool Server::check_mode_input(std::vector<std::string> &token)
 	return true;
 }
 
-void Server::mode(std::vector<std::string> &token)
+void Server::mode(const std::vector<std::string> &token)
 {
 	if (!check_mode_input(token))
 		return;

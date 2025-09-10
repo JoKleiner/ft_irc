@@ -2,9 +2,11 @@
 #pragma once
 
 #include "Client.hpp"
-#include "Server.hpp"
+#include "Utils.hpp"
+#include <string>
 #include <map>
 #include <vector>
+#include <regex>
 
 struct client_speci
 {
@@ -27,16 +29,16 @@ class Channel
 	const std::map<std::string, client_speci> &get_cha_cl_list() const;
 	void broadcast(std::string sender, std::string msg) const;
 
-	void InviteMode(std::vector<std::string> &token, Client client);
-	void TopicMode(std::vector<std::string> &token, Client client);
-	void KeyMode(std::vector<std::string> &token, Client client, size_t &mode_count);
-	void OperatMode(std::vector<std::string> &token, Client client, size_t &mode_count);
-	void LimitMode(std::vector<std::string> &token, Client client, size_t &mode_count);
-	void send_channel_mode(std::vector<std::string> &token, Client client, std::string mode);
+	void InviteMode(const std::vector<std::string> &token, Client client);
+	void TopicMode(const std::vector<std::string> &token, Client client);
+	void KeyMode(const std::vector<std::string> &token, Client client, size_t &mode_count);
+	void OperatMode(const std::vector<std::string> &token, Client client, size_t &mode_count);
+	void LimitMode(const std::vector<std::string> &token, Client client, size_t &mode_count);
+	void send_channel_mode(const std::vector<std::string> &token, Client client, std::string mode);
 
-	void KickNick(std::string &nick);
-	void InvNick(std::string &nick);
-	void SetTopic(std::string topic);
+	void KickNick(const std::string &nick);
+	void InvNick(const std::string &nick);
+	void SetTopic(const std::string &topic);
 
   private:
 	std::string m_name;

@@ -1,7 +1,7 @@
 
 #include "Server.hpp"
 
-bool Server::check_ChaOpCo_input(std::vector<std::string> &token)
+bool Server::check_ChaOpCo_input(const std::vector<std::string> &token)
 {
 	auto chan_ele = token[0] == "INVITE" ? _channels.find(token[2]) : _channels.find(token[1]);
 
@@ -25,7 +25,7 @@ bool Server::check_ChaOpCo_input(std::vector<std::string> &token)
 	return true;
 }
 
-void Server::KickInv(std::vector<std::string> &token)
+void Server::KickInv(const std::vector<std::string> &token)
 {
 	if (token.size() < 3)
 		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
@@ -46,7 +46,7 @@ void Server::KickInv(std::vector<std::string> &token)
 		chan.InvNick(token[1]);
 }
 
-void Server::topic(std::vector<std::string> &token)
+void Server::topic(const std::vector<std::string> &token)
 {
 	if (token.size() < 2)
 		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", "TOPIC :ERR_NEEDMOREPARAMS"), void());
