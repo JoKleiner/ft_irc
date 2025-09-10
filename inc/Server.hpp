@@ -30,8 +30,10 @@
 #define PING ct_hash("PING")
 #define PONG ct_hash("PONG")
 
+bool read_message(std::string &client_mssg, int fds);
 std::vector<std::string> split(std::string str, std::string cha);
 std::vector<std::string> token_message(std::string client_mssg);
+bool check_pw_syntax(std::string line);
 
 class Channel;
 
@@ -62,9 +64,8 @@ class Server
 	static void join(const std::vector<std::string> &token);
 	static void part(const std::vector<std::string> &token);
 	static void privmsg(const std::vector<std::string> &token);
-	// static void kick(const std::vector<std::string> &token);
-	// static void invite(const std::vector<std::string> &token);
-	// static void topic(const std::vector<std::string> &token);
+	static void KickInv(const std::vector<std::string> &token);
+	static void topic(const std::vector<std::string> &token);
 	static void mode(const std::vector<std::string> &token);
 	static void ping(const std::vector<std::string> &token);
 	static void pong(const std::vector<std::string> &token);
@@ -73,7 +74,7 @@ class Server
 	static void serverLoop();
 	static void cleanup();
 	// static void send_err();
-	static void switchi(const std::vector<std::string> &token);
+	static void find_command(const std::vector<std::string> &token);
 	static void create_channel(const std::vector<std::string> &channel_splits, size_t i, const std::vector<std::string> &password_splits);
 	static void leave_all_channel(const Client &client, const std::string &command = "PART", const std::string &msg = ":Heute ist nicht alle Tage, ich komm wieder keine Frage.");
 	static void msg_channel(const std::string &channel, const std::string &msg);
@@ -88,6 +89,7 @@ class Server
 	static bool check_channel_syntax(const std::vector<std::string> &channel_splits, size_t i);
 	static bool check_privmsg_input(const std::vector<std::string> &token);
 	static bool check_mode_input(const std::vector<std::string> &token);
+	static bool check_ChaOpCo_input(const std::vector<std::string> &token);
 	static void checkActivity();
 	static void welcomeMessage();
 	static void sendPing(Client &client);

@@ -17,39 +17,29 @@ void Channel::ChannelWelcomeMessage(const Client &client)
 	sendERRRPL(client, SERVERNAME, "366", get_channel_name() + " :End of NAMES list");
 }
 
-Channel::Channel(std::string name, Client client)
+Channel::Channel(std::string name, Client client) :
+	m_name(name),	m_topic_operat(false),	m_invite_only(false),	m_chan_limit(0)
 {
 	client_speci cur_client;
 	if (name[0] == '+')
-	{
 		cur_client.ch_operator = false;
-	}
 	else
-	{
 		cur_client.ch_operator = true;
-	}
 	cur_client.fd = client.get_fd();
-	m_name = name;
 	m_cl_list[client.get_nick()] = cur_client;
-	m_invite_only = false;
-	m_topic_operat = true;
-	ChannelWelcomeMessage(client);
-}
 
-const std::map<std::string, client_speci> &Channel::get_cha_cl_list() const
-{
-	return (m_cl_list);
+	ChannelWelcomeMessage(client);
 }
 
 void Channel::leave_channel(const Client &client, const std::string &msg, const std::string &command)
 {
 	if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
 	{
-		m_cl_list.erase(client.get_nick());
 		if (command == "PART")
 			broadcast(client.get_nick(), (":" + client.get_user_whole_str() + " " + command + " " + get_channel_name() + " :" + msg + "\r\n").c_str());
 		else
 			broadcast(client.get_nick(), (":" + client.get_user_whole_str() + " " + command + " :" + msg + "\r\n").c_str());
+		m_cl_list.erase(client.get_nick());
 	}
 	else
 		sendERRRPL(client, SERVERNAME, "442", get_channel_name() + " :You're not on that channel");
@@ -57,40 +47,47 @@ void Channel::leave_channel(const Client &client, const std::string &msg, const 
 
 void Channel::join(Client client, std::string channel_pw)
 {
-	if(m_invite_only == true && std::find(m_invite_list.begin(), m_invite_list.end(), client.get_nick())	!= m_invite_list.end())
+	auto inv_client = std::find(m_invite_list.begin(), m_invite_list.end(), client.get_nick());
+
+	if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
+		ChannelWelcomeMessage(client);
+	else if(m_invite_only && inv_client == m_invite_list.end())
+		sendERRRPL(client, SERVERNAME, "473", ":ERR_INVITEONLYCHAN");
+	else if (m_chan_limit != 0 && m_cl_list.size() >= m_chan_limit)
+		sendERRRPL(client, SERVERNAME, "471", ":ERR_CHANNELISFULL");
+	else if (channel_pw != m_password)
+		sendERRRPL(client, SERVERNAME, "464", ":Password incorrect");
+	else
 	{
-		std::string out = "473 ERR_INVITEONLYCHAN\n\r";
-		SEND(client.get_fd(), out.c_str());
-	}
-	if (!client.registered())
-		sendERRRPL(client, SERVERNAME, "451", ":You have not registered");
-	else if (channel_pw == m_password)
-	{
-		if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
-			return;
 		client_speci client_spec;
-		client_spec.fd = client.get_fd();
 		client_spec.ch_operator = false;
+		client_spec.fd = client.get_fd();
 		m_cl_list[client.get_nick()] = client_spec;
+
+		if(m_invite_only == true)
+			m_invite_list.erase(inv_client);
 
 		ChannelWelcomeMessage(client);
 	}
-	else
-		sendERRRPL(client, SERVERNAME, "464", ":Password incorrect");
 }
 
-const std::string &Channel::get_channel_name() const
-{
+const std::map<std::string, client_speci> &Channel::get_cha_cl_list() const{
+	return (m_cl_list);
+}
+
+const std::string &Channel::get_channel_name() const {
 	return (m_name);
 }
 
-const std::string &Channel::get_topic() const
-{
+const std::string &Channel::get_topic() const {
 	return (m_topic);
 }
 
-void Channel::set_channel_pw(std::string password)
-{
+const bool &Channel::get_topic_op() const {
+	return (m_topic_operat);
+}
+
+void Channel::set_channel_pw(std::string password) {
 	m_password = password;
 }
 
@@ -103,19 +100,3 @@ void Channel::broadcast(std::string sender, std::string msg) const
 			SEND(specification.fd, msg.c_str());
 	}
 }
-
-// operator
-
-/*
-Then, you have to implement the commands that are specific to channel
-operators:
-∗ KICK - Eject a client from the channel
-∗ INVITE - Invite a client to a channel
-∗ TOPIC - Change or view the channel topic
-∗ MODE - Change the channel’s mode:
-· i: Set/remove Invite-only channel
-· t: Set/remove the restrictions of the TOPIC command to channel operators
-· k: Set/remove the channel key (password)
-· o: Give/take channel operator privilege
-· l: Set/remove the user limit to channel
-*/

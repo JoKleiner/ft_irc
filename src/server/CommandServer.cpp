@@ -45,7 +45,8 @@ void Server::user(const std::vector<std::string> &token)
 			sendERRRPL(_clients[_iter], SERVERNAME, "468", token[1] + " :Invalid username");
 		else
 		{
-			_clients[_iter].set_user(token[1], std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string { return a + " " + b; }));
+			_clients[_iter].set_user(token[1], std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string
+															   { return a + " " + b; }));
 			if (_clients[_iter].registered())
 				Server::welcomeMessage();
 		}
@@ -64,20 +65,15 @@ void Server::quit(const std::vector<std::string> &token)
 void Server::list(const std::vector<std::string> &token)
 {
 	(void)token;
-	if (!_clients[_iter].registered())
-		sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
-	else
-	{
-		std::string msg = "\nList of open channels:\n";
-		for (auto &[name, channel] : _channels)
-			sendERRRPL(_clients[_iter], SERVERNAME, "322", name + " # " + std::to_string(channel.get_cha_cl_list().size()) + " :" + channel.get_topic());
-		sendERRRPL(_clients[_iter], SERVERNAME, "323", ":End of LIST");
-	}
+
+	for (auto &[name, channel] : _channels)
+		sendERRRPL(_clients[_iter], SERVERNAME, "322", name + " # " + std::to_string(channel.get_cha_cl_list().size()) + " :" + channel.get_topic());
+	sendERRRPL(_clients[_iter], SERVERNAME, "323", ":End of LIST");
 }
 
 void Server::ping(const std::vector<std::string> &token)
 {
-	if(token.size() < 2)
+	if (token.size() < 2)
 		sendERRRPL(_clients[_iter], SERVERNAME, "409", ":No origin specified");
 	else
 		sendERRRPL(_clients[_iter], SERVERNAME, "PONG", ":" + token[1]);
@@ -85,7 +81,7 @@ void Server::ping(const std::vector<std::string> &token)
 
 void Server::pong(const std::vector<std::string> &token)
 {
-	if(token.size() < 2)
+	if (token.size() < 2)
 		sendERRRPL(_clients[_iter], SERVERNAME, "409", ":No origin specified");
 }
 

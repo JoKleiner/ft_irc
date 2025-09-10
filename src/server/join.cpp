@@ -6,7 +6,11 @@ void Server::create_channel(const std::vector<std::string> &channel_splits, size
 	Channel chan(channel_splits[i], _clients[_iter]);
 
 	if (i < password_splits.size() && !password_splits[i].empty())
+	{
+		if (check_pw_syntax(password_splits[i]))
+			return (sendERRRPL(_clients[_iter], SERVERNAME, "525", ":Invalid key"), void());
 		chan.set_channel_pw(password_splits[i]);
+	}
 
 	_channels.insert({chan.get_channel_name(), chan});
 }
@@ -14,10 +18,7 @@ void Server::create_channel(const std::vector<std::string> &channel_splits, size
 bool Server::check_channel_syntax(const std::vector<std::string> &channel_splits, size_t i)
 {
 	if (!std::regex_match(channel_splits[i], std::regex("^[#+&][A-Za-z0-9\\-_\\^\\[\\]\\`\\{\\}]{1,49}$")))
-	{
-		sendERRRPL(_clients[_iter], SERVERNAME, "403", channel_splits[i] + " :Invalid channel name");
-		return (false);
-	}
+		return (sendERRRPL(_clients[_iter], SERVERNAME, "403", channel_splits[i] + " :Invalid channel name"), false);
 	return (true);
 }
 
@@ -36,13 +37,11 @@ void Server::leave_all_channel(const Client &client, const std::string &command,
 
 void Server::join(const std::vector<std::string> &token)
 {
-	if (!_clients[_iter].registered())
-		sendERRRPL(_clients[_iter], SERVERNAME, "451", ":You have not registered");
-	else if (token.size() < 2)
+	if (token.size() < 2)
 		sendERRRPL(_clients[_iter], SERVERNAME, "461", "JOIN :Not enough parameters");
 	else if (token[1] == "0")
 	{
-		if (token.size() >= 2)
+		if (token.size() > 1)
 			leave_all_channel(_clients[_iter], "QUIT", token[2]);
 		else
 			leave_all_channel(_clients[_iter], "QUIT");
@@ -51,7 +50,7 @@ void Server::join(const std::vector<std::string> &token)
 	{
 		std::vector<std::string> channel_splits = split(token[1], ",");
 		std::vector<std::string> password_splits;
-		if (token.size() >= 3)
+		if (token.size() > 2)
 			password_splits = split(token[2], ",");
 		for (size_t i = 0; i < channel_splits.size(); i++)
 		{

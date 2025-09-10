@@ -20,14 +20,6 @@
 	listen: Tell the socket to listen with a backlog of "SOMAXCONN" connections. SOMAXCONN = 128 max connections
 */
 
-static bool check_serv_pw(std::string line)
-{
-	for (size_t i = 0; i < line.size(); i++)
-		if (!std::isprint(line[i]) || line[i] == ' ')
-			return false;
-	return true;
-}
-
 void Server::start(char **argv)
 {
 	int port;
@@ -35,7 +27,7 @@ void Server::start(char **argv)
 	port = std::stoi(argv[1]);
 	if (port < 1024 || port > 49151)
 		throw(std::runtime_error("Port should be in between 1024-49151"));
-	if (!check_serv_pw(argv[2]))
+	if (!check_pw_syntax(argv[2]))
 		throw(std::runtime_error("Password contains invalid characters"));
 	_password = argv[2];
 

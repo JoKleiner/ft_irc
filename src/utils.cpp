@@ -16,6 +16,21 @@ void sendERRRPL(const int &target, const std::string &prefix, const std::string 
 	std::cout << (":" + prefix + " " + command + " " + params + "\r\n").c_str();
 }
 
+bool read_message(std::string &client_mssg, int fds)
+{
+	ssize_t bytes = 1;
+
+	while (client_mssg.find('\n') == std::string::npos && bytes > 0)
+	{
+		char buff[1024] = {0};
+		bytes = read(fds, buff, sizeof(buff) - 1);
+		client_mssg = client_mssg + buff;
+	}
+	if (bytes < 0)
+		return (false);
+	return (true);
+}
+
 std::vector<std::string> token_message(std::string line)
 {
 	std::vector<std::string> vec_token;
@@ -52,3 +67,11 @@ std::vector<std::string> split(std::string str, std::string cha)
 	split.push_back(line);
 	return (split);
 }
+
+bool check_pw_syntax(std::string line)
+{
+	for (size_t i = 0; i < line.size(); i++)
+		if (!std::isprint(line[i]) || line[i] == ' ')
+            return false;
+	return true;
+}	

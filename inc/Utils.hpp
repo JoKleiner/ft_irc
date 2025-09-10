@@ -8,6 +8,7 @@
 #include <sstream>
 #include <netinet/in.h>
 #include <iomanip>
+#include <unistd.h>
 
 #define SERVERNAME "server.name"
 #define VERSION "v0.1"

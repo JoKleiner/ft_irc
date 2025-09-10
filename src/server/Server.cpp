@@ -12,8 +12,8 @@ time_point Server::_serverStart;
 void Server::client_message()
 {
 	std::string client_mssg;
-	if (!_clients[_iter].read_client_message(client_mssg))
-		return;
+	if (!read_message(client_mssg, _fds[_iter].fd))
+		return ;
 
 	if (client_mssg.empty())
 	{
