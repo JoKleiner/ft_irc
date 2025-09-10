@@ -64,7 +64,8 @@ class Server
 	static void join(const std::vector<std::string> &token);
 	static void part(const std::vector<std::string> &token);
 	static void privmsg(const std::vector<std::string> &token);
-	static void KickInv(const std::vector<std::string> &token);
+	static void kick(const std::vector<std::string> &token);
+	static void invite(const std::vector<std::string> &token);
 	static void topic(const std::vector<std::string> &token);
 	static void mode(const std::vector<std::string> &token);
 	static void ping(const std::vector<std::string> &token);
@@ -90,6 +91,7 @@ class Server
 	static bool check_privmsg_input(const std::vector<std::string> &token);
 	static bool check_mode_input(const std::vector<std::string> &token);
 	static bool check_ChaOpCo_input(const std::vector<std::string> &token);
+	static bool check_kick(const std::vector<std::string> &token, std::string &channel_splits, std::string &nick_splits);
 	static void checkActivity();
 	static void welcomeMessage();
 	static void sendPing(Client &client);

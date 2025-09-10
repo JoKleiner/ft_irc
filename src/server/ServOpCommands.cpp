@@ -16,34 +16,77 @@ bool Server::check_ChaOpCo_input(const std::vector<std::string> &token)
 	if (token[0] != "TOPIC" && !client->second.ch_operator)
 		return (sendERRRPL(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_CHANOPRIVSNEEDED"), false);
 
-	client = token[0] == "KICK" ? clie_list.find(token[2]) : clie_list.find(token[1]);
+	client = clie_list.find(token[1]);
 
-	if (token[0] == "KICK" && client == clie_list.end())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "441", token[0] + " :ERR_USERNOTINCHANNEL"), false);
 	if (token[0] == "INVITE" && client != clie_list.end())
 		return (sendERRRPL(_clients[_iter], SERVERNAME, "443", token[0] + " :ERR_USERONCHANNEL"), false);
 	return true;
 }
 
-void Server::KickInv(const std::vector<std::string> &token)
+bool Server::check_kick(const std::vector<std::string> &token, std::string &channel, std::string &nick_splits)
+{
+	auto chan_ele = _channels.find(channel);
+	if (chan_ele == _channels.end())
+		return (sendERRRPL(_clients[_iter], SERVERNAME, "403", token[0] + " :ERR_NOSUCHCHANNEL"), false);
+	auto clie_list = chan_ele->second.get_cha_cl_list();
+	auto client = clie_list.find(_clients[_iter].get_nick());
+	if (client == clie_list.end())
+		return (sendERRRPL(_clients[_iter], SERVERNAME, "442", token[0] + " :ERR_NOTONCHANNEL"), false);
+	if (!client->second.ch_operator)
+		return (sendERRRPL(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_CHANOPRIVSNEEDED"), false);
+
+	client = clie_list.find(nick_splits);
+	if (client == clie_list.end())
+		return (sendERRRPL(_clients[_iter], SERVERNAME, "441", token[0] + " :ERR_USERNOTINCHANNEL"), false);
+	if (client->second.ch_operator)
+		return (sendERRRPL(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_BIGGERCHANOPRIVSNEEDED"), false);
+	return true;
+}
+
+void Server::kick(const std::vector<std::string> &token)
+{
+	if (token.size() < 3)
+		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
+
+	std::vector<std::string> channel_splits = split(token[1], ",");
+	std::vector<std::string> nick_splits = split(token[2], ",");
+	
+	if (channel_splits.size() != 1 && channel_splits.size() != nick_splits.size())
+		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
+
+	for (size_t i = 0; i < nick_splits.size(); i++)
+	{
+		std::string channel = channel_splits[0];
+		if (channel_splits.size() != 1)
+			channel = channel_splits[i];
+
+		if (!check_kick(token, channel, nick_splits[i]))
+			return;
+
+		std::string out = ":" + _clients[_iter].get_user_whole_str() + " " + token[0] + " " + channel + " " + nick_splits[i];
+		if (token.size() > 3)
+			out += " " + token[3];
+		out += "\r\n";
+
+		Channel &chan = _channels.find(channel)->second;
+		for (auto it : chan.get_cha_cl_list())
+			SEND(it.second.fd, out.c_str());
+		chan.KickNick(nick_splits[i]);
+	}
+}
+
+void Server::invite(const std::vector<std::string> &token)
 {
 	if (token.size() < 3)
 		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
 	if (!check_ChaOpCo_input(token))
 		return;
 
-	std::string out = ":" + _clients[_iter].get_user_whole_str() + " " + token[0] + " " + token[1] + " " + token[2];
-	if (token.size() > 3)
-		out += " " + token[3];
-	out += "\n\r";
-	Channel &chan = token[0] == "INVITE" ? _channels.find(token[2])->second : _channels.find(token[1])->second;
+	std::string out = ":" + _clients[_iter].get_user_whole_str() + " " + token[0] + " " + token[1] + " " + token[2] + "\r\n";
+	Channel &chan = _channels.find(token[2])->second;
 	for (auto it : chan.get_cha_cl_list())
 		SEND(it.second.fd, out.c_str());
-	
-	if (token[0] == "KICK")
-		chan.KickNick(token[2]);
-	else
-		chan.InvNick(token[1]);
+	chan.InvNick(token[1]);
 }
 
 void Server::topic(const std::vector<std::string> &token)
