@@ -1,13 +1,13 @@
 
 #include "Channel.hpp"
 
-void Channel::send_channel_mode(const std::vector<std::string> &token, Client client, std::string mode)
+void Channel::send_channel_mode(const std::vector<std::string> &token, const Client &client, std::string mode)
 {
 	for (auto it : m_cl_list)
-		sendERRRPL(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " " + token[2][0] + mode);
+		sendRplErr(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " " + token[2][0] + mode);
 }
 
-void Channel::InviteMode(const std::vector<std::string> &token, Client client)
+void Channel::InviteMode(const std::vector<std::string> &token, const Client &client)
 {
 	if (token[2][0] == '-')
 		m_invite_only = false;
@@ -16,7 +16,7 @@ void Channel::InviteMode(const std::vector<std::string> &token, Client client)
 	send_channel_mode(token, client, "i");
 }
 
-void Channel::TopicMode(const std::vector<std::string> &token, Client client)
+void Channel::TopicMode(const std::vector<std::string> &token, const Client &client)
 {
 	if (token[2][0] == '-')
 		m_topic_operat = false;
@@ -25,58 +25,58 @@ void Channel::TopicMode(const std::vector<std::string> &token, Client client)
 	send_channel_mode(token, client, "t");
 }
 
-static bool check_channel_pw(std::string line)
+bool check_channel_pw(std::string line, const Client &client)
 {
 	if (line.size() < 2 || line.size() >= 32)
-		return false;
+		return (sendRplErr(client, SERVERNAME, "461", "JOIN :Not enough parameters"), false);
 
 	for (size_t i = 0; i < line.size(); i++)
 		if (!std::isprint(line[i]) || line[i] == ' ')
-			return false;
-
+		return (sendRplErr(client, SERVERNAME, "461", "JOIN :Not enough parameters"), false);
+	
 	return true;
 }
 
-void Channel::KeyMode(const std::vector<std::string> &token, Client client, size_t &mode_count)
+void Channel::KeyMode(const std::vector<std::string> &token, const Client &client, size_t &mode_count)
 {
 	if (token[2][0] == '-')
 	{
 		for (auto it : m_cl_list)
-			sendERRRPL(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " -k");
+			sendRplErr(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " -k");
 	}
 	else if (token.size() < mode_count + 1)
-		sendERRRPL(client, SERVERNAME, "461", "MODE :Not enough parameters");
-	else if (!check_channel_pw(token[mode_count]))
-		sendERRRPL(client, SERVERNAME, "477", "MODE :ERR_KEYSET +k");
+		sendRplErr(client, SERVERNAME, "461", "MODE :Not enough parameters");
+	else if (!check_channel_pw(token[mode_count], client))
+		return ;
 	else
 	{
 		m_password = token[mode_count];
 		for (auto it : m_cl_list)
-			sendERRRPL(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " +k " + m_password);
+			sendRplErr(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " +k " + m_password);
 		mode_count++;
 	}
 }
 
-void Channel::OperatMode(const std::vector<std::string> &token, Client client, size_t &mode_count)
+void Channel::OperatMode(const std::vector<std::string> &token, const Client &client, size_t &mode_count)
 {
 	if (token.size() < mode_count + 1)
-		sendERRRPL(client, SERVERNAME, "461", "MODE :Not enough parameters");
+		sendRplErr(client, SERVERNAME, "461", "MODE :Not enough parameters");
 	else
 	{
 		if (m_cl_list.find(token[mode_count]) == m_cl_list.end())
-			sendERRRPL(client, SERVERNAME, "441", token[mode_count] + " " + get_channel_name() + " :They aren't on that channel");
+			sendRplErr(client, SERVERNAME, "441", token[mode_count] + " " + get_channel_name() + " :They aren't on that channel");
 		else
 		{
 			m_cl_list.find(token[mode_count])->second.ch_operator = (token[2][0] == '+' ? true : false);
 			for (auto it : m_cl_list)
-				sendERRRPL(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " " + token[2][0] + "o " + token[mode_count]);
+				sendRplErr(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " " + token[2][0] + "o " + token[mode_count]);
 		}
 		if (token[2][0] == '+')
 			mode_count++;
 	}
 }
 
-void Channel::LimitMode(const std::vector<std::string> &token, Client client, size_t &mode_count)
+void Channel::LimitMode(const std::vector<std::string> &token, const Client &client, size_t &mode_count)
 {
 	try
 	{
@@ -86,24 +86,24 @@ void Channel::LimitMode(const std::vector<std::string> &token, Client client, si
 			send_channel_mode(token, client, "l");
 		}
 		else if (token.size() < mode_count + 1)
-			sendERRRPL(client, SERVERNAME, "461", "MODE :Not enough parameters");
+			sendRplErr(client, SERVERNAME, "461", "MODE :Not enough parameters");
 		else if (!std::regex_match(token[mode_count], std::regex("^[0-9]{1,10}$")))
 			throw std::exception();
 		else
 		{
 			m_chan_limit = stoi(token[mode_count]);
 			for (auto it : m_cl_list)
-				sendERRRPL(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " +l " + token[mode_count]);
+				sendRplErr(it.second.fd, client.get_user_whole_str(), "MODE", token[1] + " +l " + token[mode_count]);
 		}
 	}
 	catch (std::exception &e)
 	{
-		sendERRRPL(client, SERVERNAME, "476", "MODE :Invalid parameter" + token[mode_count] + "for +l");
+		sendRplErr(client, SERVERNAME, "476", "MODE :Invalid parameter" + token[mode_count] + "for +l");
 	}
 	mode_count++;
 }
 
-void Channel::rpl_chan_modi(const std::vector<std::string> &token, Client client)
+void Channel::rpl_chan_modi(const std::vector<std::string> &token, const Client &client)
 {
 	std::string out = token[1] + " +";
 	if (m_topic_operat || m_invite_only || m_chan_limit > 0 || !m_password.empty())
@@ -115,7 +115,6 @@ void Channel::rpl_chan_modi(const std::vector<std::string> &token, Client client
 
 		out += m_chan_limit > 0 	? " " + std::to_string(m_chan_limit) : "";
 		out += !m_password.empty() 	? " " + m_password 	 : "";
-
 	}
-	sendERRRPL(client, SERVERNAME, "324", out);
+	sendRplErr(client, SERVERNAME, "324", out);
 }

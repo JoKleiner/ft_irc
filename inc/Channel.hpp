@@ -8,6 +8,8 @@
 #include <vector>
 #include <regex>
 
+bool check_channel_pw(std::string line, const Client &client);
+
 struct client_speci
 {
 	int fd;
@@ -30,13 +32,13 @@ class Channel
 	void broadcast(std::string sender, std::string msg) const;
 	void broadcast(const std::string &prefix, const std::string &command, const std::string &params) const;
 
-	void InviteMode(const std::vector<std::string> &token, Client client);
-	void TopicMode(const std::vector<std::string> &token, Client client);
-	void KeyMode(const std::vector<std::string> &token, Client client, size_t &mode_count);
-	void OperatMode(const std::vector<std::string> &token, Client client, size_t &mode_count);
-	void LimitMode(const std::vector<std::string> &token, Client client, size_t &mode_count);
-	void send_channel_mode(const std::vector<std::string> &token, Client client, std::string mode);
-	void rpl_chan_modi(const std::vector<std::string> &token, Client client);
+	void InviteMode(const std::vector<std::string> &token, const Client &client);
+	void TopicMode(const std::vector<std::string> &token, const Client &client);
+	void KeyMode(const std::vector<std::string> &token, const Client &client, size_t &mode_count);
+	void OperatMode(const std::vector<std::string> &token, const Client &client, size_t &mode_count);
+	void LimitMode(const std::vector<std::string> &token, const Client &client, size_t &mode_count);
+	void send_channel_mode(const std::vector<std::string> &token, const Client &client, std::string mode);
+	void rpl_chan_modi(const std::vector<std::string> &token, const Client &client);
 
 	void KickNick(const std::string &nick);
 	void InvNick(const std::string &nick);

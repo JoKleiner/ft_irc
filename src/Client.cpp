@@ -3,14 +3,15 @@
 
 std::string g_server_password;
 
-Client::Client(int fd) : m_pw(false), m_fds_num(fd), m_user(), m_nick(), m_last_send_time(std::chrono::system_clock::now()), m_joined_time(std::chrono::system_clock::now()), m_ping_send(false) {}
+Client::Client(int fd) : m_pw(false), m_fds_num(fd), m_user(), m_nick(), m_last_send_time(std::chrono::system_clock::now()),
+						 m_joined_time(std::chrono::system_clock::now()), m_ping_send(false) {
+}
 
 void Client::set_pw(const bool &set) {
 	m_pw = set;
 }
 
-void Client::set_user(std::string name, std::string namestr)
-{
+void Client::set_user(std::string name, std::string namestr) {
 	m_user = name;
 	m_userstring = namestr;
 }
