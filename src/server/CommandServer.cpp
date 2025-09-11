@@ -45,8 +45,7 @@ void Server::user(const std::vector<std::string> &token)
 			sendRplErr(_clients[_iter], SERVERNAME, "468", token[1] + " :Invalid username");
 		else
 		{
-			_clients[_iter].set_user(token[1], std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string
-															   { return a + " " + b; }));
+			_clients[_iter].set_user(token[1], std::accumulate(std::next(token.begin()), token.end(), std::string(""), [](std::string a, const std::string &b) -> std::string { return a + " " + b; }));
 			if (_clients[_iter].registered())
 				Server::welcomeMessage();
 		}

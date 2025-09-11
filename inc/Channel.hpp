@@ -30,6 +30,7 @@ class Channel
 	void leave_channel(const Client &client, const std::string &msg = "Heute ist nicht alle Tage, ich komm wieder keine Frage.", const std::string &command = "PART");
 	const std::map<std::string, client_speci> &get_cha_cl_list() const;
 	void broadcast(std::string sender, std::string msg) const;
+	void broadcast(const std::string &prefix, const std::string &command, const std::string &params) const;
 
 	void InviteMode(const std::vector<std::string> &token, const Client &client);
 	void TopicMode(const std::vector<std::string> &token, const Client &client);

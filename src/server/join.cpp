@@ -57,14 +57,14 @@ void Server::join(const std::vector<std::string> &token)
 				continue;
 			if (i < password_splits.size() && !password_splits[i].empty())
 					channel_pw = password_splits[i];
-			if (!check_channel_pw(channel_pw, _clients[_iter]))
+			if (token.size() > 2 && !check_channel_pw(channel_pw, _clients[_iter]))
 				continue;
 			
 			auto chan = _channels.find(channel_splits[i]);
 			if (chan == _channels.end())
-				create_channel(channel_splits[i], password_splits[i]);
+				create_channel(channel_splits[i], channel_pw);
 			else
-				chan->second.join(_clients[_iter], password_splits[i]);
+				chan->second.join(_clients[_iter], channel_pw);
 		}
 	}
 }

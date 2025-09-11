@@ -32,6 +32,9 @@ void Server::start(char **argv)
 	_password = argv[2];
 
 	_sock = socket(AF_INET, SOCK_STREAM, 0);
+#ifdef __APPLE__
+	fcntl(_sock, F_SETFL, O_NONBLOCK);
+#endif
 	int opt = 1;
 	setsockopt(_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 

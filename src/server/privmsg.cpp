@@ -7,8 +7,7 @@ void Server::msg_client(const std::string &cl_name, const std::string &msg)
 	{
 		if (iter.get_nick() == cl_name)
 		{
-			std::string out = ":" + _clients[_iter].get_user_whole_str() + " PRIVMSG " +  iter.get_nick() + " :" + msg + "\r\n";
-			SEND(iter.get_fd(), out.c_str());
+			sendRplErr(iter, _clients[_iter].get_user_whole_str(), "PRIVMSG", iter.get_nick() + " :" + msg);
 			return;
 		}
 	}
@@ -30,7 +29,7 @@ void Server::msg_channel(const std::string &channel, const std::string &msg)
 
 	if (cl_list.find(cl_name) == cl_list.end())
 	{
-		sendRplErr(_clients[_iter], SERVERNAME, "404", channel + " :ERR_CANNOTSENDTOCHAN");
+		sendRplErr(_clients[_iter], SERVERNAME, "404", channel + " :Cannot send to channel");
 		return;
 	}
 	std::string nmsg = ":" + _clients[_iter].get_user_whole_str() + " PRIVMSG " + channel + " :" + msg + "\r\n";
