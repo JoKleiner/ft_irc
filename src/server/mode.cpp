@@ -4,16 +4,16 @@
 bool Server::check_mode_input(const std::vector<std::string> &token)
 {
 	if (token.size() < 2)
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", "MODE :ERR_NEEDMOREPARAMS"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "461", "MODE :ERR_NEEDMOREPARAMS"), false);
 
 	auto chan_ele = _channels.find(token[1]);
 	if (chan_ele == _channels.end())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "403", "MODE :ERR_NOSUCHCHANNEL"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "403", "MODE :ERR_NOSUCHCHANNEL"), false);
 
 	if (token.size() > 2)
 	{
 		if (token[2].size() < 2 || (token[2][0] != '+' && token[2][0] != '-'))
-			return (sendERRRPL(_clients[_iter], SERVERNAME, "472", "MODE :ERR_UNKNOWNMODE"), false);
+			return (sendRplErr(_clients[_iter], SERVERNAME, "472", "MODE :ERR_UNKNOWNMODE"), false);
 
 		for (size_t i = 1; i < token[2].size(); i++)
 		{
@@ -22,7 +22,7 @@ bool Server::check_mode_input(const std::vector<std::string> &token)
 			case 'i': case 't': case 'k': case 'o': case 'l':
 				break;
 			default:
-				return (sendERRRPL(_clients[_iter], SERVERNAME, "472", "MODE :ERR_UNKNOWNMODE"), false);
+				return (sendRplErr(_clients[_iter], SERVERNAME, "472", "MODE :ERR_UNKNOWNMODE"), false);
 			}
 		}
 
@@ -30,10 +30,10 @@ bool Server::check_mode_input(const std::vector<std::string> &token)
 		auto clie_ele = clie_list.find(_clients[_iter].get_nick());
 
 		if (clie_ele == clie_list.end())
-			return (sendERRRPL(_clients[_iter], SERVERNAME, "442", "MODE :ERR_NOTONCHANNEL"), false);
+			return (sendRplErr(_clients[_iter], SERVERNAME, "442", "MODE :ERR_NOTONCHANNEL"), false);
 
 		if (!clie_ele->second.ch_operator)
-			return (sendERRRPL(_clients[_iter], SERVERNAME, "482", "MODE :ERR_CHANOPRIVSNEEDED"), false);
+			return (sendRplErr(_clients[_iter], SERVERNAME, "482", "MODE :ERR_CHANOPRIVSNEEDED"), false);
 	}
 	return true;
 }

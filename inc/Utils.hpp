@@ -23,5 +23,5 @@ using time_point = std::chrono::time_point<std::chrono::system_clock>;
 
 std::vector<std::string> token_message(std::string line);
 std::vector<std::string> split(std::string str, std::string cha);
-void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params);
-void sendERRRPL(const int &target, const std::string &prefix, const std::string &command, const std::string &params);
+void sendRplErr(const Client &target, const std::string &prefix, const std::string &command, const std::string &params);
+void sendRplErr(const int &target, const std::string &prefix, const std::string &command, const std::string &params);

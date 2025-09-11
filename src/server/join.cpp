@@ -1,24 +1,20 @@
 
 #include "Server.hpp"
 
-void Server::create_channel(const std::vector<std::string> &channel_splits, size_t i, const std::vector<std::string> &password_splits)
+void Server::create_channel(const std::string &channel, const std::string &channel_pw)
 {
-	Channel chan(channel_splits[i], _clients[_iter]);
+	Channel chan(channel, _clients[_iter]);
 
-	if (i < password_splits.size() && !password_splits[i].empty())
-	{
-		if (check_pw_syntax(password_splits[i]))
-			return (sendERRRPL(_clients[_iter], SERVERNAME, "525", ":Invalid key"), void());
-		chan.set_channel_pw(password_splits[i]);
-	}
+	if (!channel_pw.empty())
+		chan.set_channel_pw(channel_pw);
 
 	_channels.insert({chan.get_channel_name(), chan});
 }
 
-bool Server::check_channel_syntax(const std::vector<std::string> &channel_splits, size_t i)
+bool Server::check_channel_syntax(const std::string &channel)
 {
-	if (!std::regex_match(channel_splits[i], std::regex("^[#+&][A-Za-z0-9\\-_\\^\\[\\]\\`\\{\\}]{1,49}$")))
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "403", channel_splits[i] + " :Invalid channel name"), false);
+	if (!std::regex_match(channel, std::regex("^[#+&][A-Za-z0-9\\-_\\^\\[\\]\\`\\{\\}]{1,49}$")))
+		return (sendRplErr(_clients[_iter], SERVERNAME, "403", channel + " :Invalid channel name"), false);
 	return (true);
 }
 
@@ -38,7 +34,7 @@ void Server::leave_all_channel(const Client &client, const std::string &command,
 void Server::join(const std::vector<std::string> &token)
 {
 	if (token.size() < 2)
-		sendERRRPL(_clients[_iter], SERVERNAME, "461", "JOIN :Not enough parameters");
+		sendRplErr(_clients[_iter], SERVERNAME, "461", "JOIN :Not enough parameters");
 	else if (token[1] == "0")
 	{
 		if (token.size() > 1)
@@ -50,22 +46,25 @@ void Server::join(const std::vector<std::string> &token)
 	{
 		std::vector<std::string> channel_splits = split(token[1], ",");
 		std::vector<std::string> password_splits;
+		std::string channel_pw;
+
 		if (token.size() > 2)
 			password_splits = split(token[2], ",");
+		
 		for (size_t i = 0; i < channel_splits.size(); i++)
 		{
-			if (!check_channel_syntax(channel_splits, i))
+			if (!check_channel_syntax(channel_splits[i]))
 				continue;
+			if (i < password_splits.size() && !password_splits[i].empty())
+					channel_pw = password_splits[i];
+			if (!check_channel_pw(channel_pw, _clients[_iter]))
+				continue;
+			
 			auto chan = _channels.find(channel_splits[i]);
 			if (chan == _channels.end())
-				create_channel(channel_splits, i, password_splits);
+				create_channel(channel_splits[i], password_splits[i]);
 			else
-			{
-				std::string channel_pw;
-				if (i < password_splits.size() && !password_splits[i].empty())
-					channel_pw = password_splits[i];
-				chan->second.join(_clients[_iter], channel_pw);
-			}
+				chan->second.join(_clients[_iter], password_splits[i]);
 		}
 	}
 }

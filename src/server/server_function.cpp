@@ -1,13 +1,12 @@
 
 #include "Server.hpp"
 
-bool Server::checkNickname(const std::string &u_name)
+bool Server::checkNickname(const std::string &n_name)
 {
 	for (size_t i = 0; i < _clients.size(); ++i)
-	{
-		if (_clients[i].get_nick() == u_name)
+		if (_clients[i].get_nick() == n_name)
 			return (false);
-	}
+	
 	return (true);
 }
 
@@ -25,7 +24,7 @@ void Server::server_kick(size_t user, const std::string &reason)
 void Server::part(const std::vector<std::string> &token)
 {
 	if (token.size() < 2)
-		sendERRRPL(_clients[_iter], SERVERNAME, "461", "PART :Not enough parameters");
+		sendRplErr(_clients[_iter], SERVERNAME, "461", "PART :Not enough parameters");
 	else
 	{
 		std::vector<std::string> channel_splits = split(token[1], ",");
@@ -33,7 +32,9 @@ void Server::part(const std::vector<std::string> &token)
 		for (size_t i = 0; i < channel_splits.size(); i++)
 		{
 			auto channel_map_point = _channels.find(channel_splits[i]);
-			if (channel_map_point != _channels.end())
+			if (channel_map_point == _channels.end())
+				sendRplErr(_clients[_iter], SERVERNAME, "403", channel_splits[i] + " :No such channel");
+			else
 			{
 				Channel &chan = channel_map_point->second;
 				if (token.size() > 2)
@@ -42,9 +43,7 @@ void Server::part(const std::vector<std::string> &token)
 					chan.leave_channel(_clients[_iter]);
 				if (chan.get_cha_cl_list().empty())
 					_channels.erase(channel_map_point->first);
-			}
-			else
-				sendERRRPL(_clients[_iter], SERVERNAME, "403", channel_splits[i] + " :No such channel");
+			}	
 		}
 	}
 }

@@ -6,20 +6,20 @@ bool Server::check_ChaOpCo_input(const std::vector<std::string> &token)
 	auto chan_ele = token[0] == "INVITE" ? _channels.find(token[2]) : _channels.find(token[1]);
 
 	if (chan_ele == _channels.end())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "403", token[0] + " :ERR_NOSUCHCHANNEL"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "403", token[0] + " :ERR_NOSUCHCHANNEL"), false);
 
 	auto clie_list = chan_ele->second.get_cha_cl_list();
 	auto client = clie_list.find(_clients[_iter].get_nick());
 
 	if (client == clie_list.end())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "442", token[0] + " :ERR_NOTONCHANNEL"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "442", token[0] + " :ERR_NOTONCHANNEL"), false);
 	if (token[0] != "TOPIC" && !client->second.ch_operator)
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_CHANOPRIVSNEEDED"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_CHANOPRIVSNEEDED"), false);
 
 	client = clie_list.find(token[1]);
 
 	if (token[0] == "INVITE" && client != clie_list.end())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "443", token[0] + " :ERR_USERONCHANNEL"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "443", token[0] + " :ERR_USERONCHANNEL"), false);
 	return true;
 }
 
@@ -27,32 +27,32 @@ bool Server::check_kick(const std::vector<std::string> &token, std::string &chan
 {
 	auto chan_ele = _channels.find(channel);
 	if (chan_ele == _channels.end())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "403", token[0] + " :ERR_NOSUCHCHANNEL"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "403", token[0] + " :ERR_NOSUCHCHANNEL"), false);
 	auto clie_list = chan_ele->second.get_cha_cl_list();
 	auto client = clie_list.find(_clients[_iter].get_nick());
 	if (client == clie_list.end())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "442", token[0] + " :ERR_NOTONCHANNEL"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "442", token[0] + " :ERR_NOTONCHANNEL"), false);
 	if (!client->second.ch_operator)
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_CHANOPRIVSNEEDED"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_CHANOPRIVSNEEDED"), false);
 
 	client = clie_list.find(nick_splits);
 	if (client == clie_list.end())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "441", token[0] + " :ERR_USERNOTINCHANNEL"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "441", token[0] + " :ERR_USERNOTINCHANNEL"), false);
 	if (client->second.ch_operator)
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_BIGGERCHANOPRIVSNEEDED"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_BIGGERCHANOPRIVSNEEDED"), false);
 	return true;
 }
 
 void Server::kick(const std::vector<std::string> &token)
 {
 	if (token.size() < 3)
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
+		return (sendRplErr(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
 
 	std::vector<std::string> channel_splits = split(token[1], ",");
 	std::vector<std::string> nick_splits = split(token[2], ",");
 	
 	if (channel_splits.size() != 1 && channel_splits.size() != nick_splits.size())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
+		return (sendRplErr(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
 
 	for (size_t i = 0; i < nick_splits.size(); i++)
 	{
@@ -78,7 +78,7 @@ void Server::kick(const std::vector<std::string> &token)
 void Server::invite(const std::vector<std::string> &token)
 {
 	if (token.size() < 3)
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
+		return (sendRplErr(_clients[_iter], SERVERNAME, "461", token[0] + " :ERR_NEEDMOREPARAMS"), void());
 	if (!check_ChaOpCo_input(token))
 		return;
 
@@ -92,7 +92,7 @@ void Server::invite(const std::vector<std::string> &token)
 void Server::topic(const std::vector<std::string> &token)
 {
 	if (token.size() < 2)
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", "TOPIC :ERR_NEEDMOREPARAMS"), void());
+		return (sendRplErr(_clients[_iter], SERVERNAME, "461", "TOPIC :ERR_NEEDMOREPARAMS"), void());
 	if (!check_ChaOpCo_input(token))
 		return;
 	Channel &chan = _channels.find(token[1])->second;
@@ -104,7 +104,7 @@ void Server::topic(const std::vector<std::string> &token)
 	}
 	if (chan.get_topic_op())
 		if (!chan.get_cha_cl_list().find(_clients[_iter].get_nick())->second.ch_operator)
-			return (sendERRRPL(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_CHANOPRIVSNEEDED"), void());
+			return (sendRplErr(_clients[_iter], SERVERNAME, "482", token[0] + " :ERR_CHANOPRIVSNEEDED"), void());
 	chan.SetTopic(token[2]);
 
 	std::string out = ":" + _clients[_iter].get_user_whole_str() + " " + token[0] + " " + token[1] + " " + token[2] + "\n\r";
