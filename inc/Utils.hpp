@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "Client.hpp"
 #include <string>
+#include <cstring>
 #include <vector>
 #include <sstream>
 #include <netinet/in.h>

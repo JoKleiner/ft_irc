@@ -3,8 +3,7 @@
 
 void Channel::ChannelWelcomeMessage(const Client &client)
 {
-	for(auto & [name, spec] : m_cl_list)
-		SEND(spec.fd, (":" + client.get_user_whole_str() + " JOIN :" + get_channel_name() + "\r\n").c_str());
+	broadcast(client.get_user_whole_str(), "JOIN", ":" + get_channel_name());
 	if (m_topic.empty())
 		sendERRRPL(client, SERVERNAME, "331", this->get_channel_name() + " :No topic set");
 	else
@@ -17,8 +16,7 @@ void Channel::ChannelWelcomeMessage(const Client &client)
 	sendERRRPL(client, SERVERNAME, "366", get_channel_name() + " :End of NAMES list");
 }
 
-Channel::Channel(std::string name, Client client) :
-	m_name(name),	m_topic_operat(false),	m_invite_only(false),	m_chan_limit(0)
+Channel::Channel(std::string name, Client client) : m_name(name), m_topic_operat(false), m_invite_only(false), m_chan_limit(0)
 {
 	client_speci cur_client;
 	if (name[0] == '+')
@@ -36,9 +34,9 @@ void Channel::leave_channel(const Client &client, const std::string &msg, const 
 	if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
 	{
 		if (command == "PART")
-			broadcast(client.get_nick(), (":" + client.get_user_whole_str() + " " + command + " " + get_channel_name() + " :" + msg + "\r\n").c_str());
+			broadcast(client.get_user_whole_str(), command, get_channel_name() + " :" + msg);
 		else
-			broadcast(client.get_nick(), (":" + client.get_user_whole_str() + " " + command + " :" + msg + "\r\n").c_str());
+			broadcast(client.get_user_whole_str() ,command + " :" + msg);
 		m_cl_list.erase(client.get_nick());
 	}
 	else
@@ -51,12 +49,12 @@ void Channel::join(Client client, std::string channel_pw)
 
 	if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
 		ChannelWelcomeMessage(client);
-	else if(m_invite_only && inv_client == m_invite_list.end())
-		sendERRRPL(client, SERVERNAME, "473", ":ERR_INVITEONLYCHAN");
+	else if (m_invite_only && inv_client == m_invite_list.end())
+		sendERRRPL(client, SERVERNAME, "473", get_channel_name() + ":Cannot join channel (+i)");
 	else if (m_chan_limit != 0 && m_cl_list.size() >= m_chan_limit)
-		sendERRRPL(client, SERVERNAME, "471", ":ERR_CHANNELISFULL");
+		sendERRRPL(client, SERVERNAME, "471", get_channel_name() + ":Cannot join channel (+l)");
 	else if (channel_pw != m_password)
-		sendERRRPL(client, SERVERNAME, "464", ":Password incorrect");
+		sendERRRPL(client, SERVERNAME, "475", get_channel_name() + ":Cannot join channel (+k)");
 	else
 	{
 		client_speci client_spec;
@@ -64,30 +62,35 @@ void Channel::join(Client client, std::string channel_pw)
 		client_spec.fd = client.get_fd();
 		m_cl_list[client.get_nick()] = client_spec;
 
-		if(m_invite_only == true)
+		if (m_invite_only == true)
 			m_invite_list.erase(inv_client);
 
 		ChannelWelcomeMessage(client);
 	}
 }
 
-const std::map<std::string, client_speci> &Channel::get_cha_cl_list() const{
+const std::map<std::string, client_speci> &Channel::get_cha_cl_list() const
+{
 	return (m_cl_list);
 }
 
-const std::string &Channel::get_channel_name() const {
+const std::string &Channel::get_channel_name() const
+{
 	return (m_name);
 }
 
-const std::string &Channel::get_topic() const {
+const std::string &Channel::get_topic() const
+{
 	return (m_topic);
 }
 
-const bool &Channel::get_topic_op() const {
+const bool &Channel::get_topic_op() const
+{
 	return (m_topic_operat);
 }
 
-void Channel::set_channel_pw(std::string password) {
+void Channel::set_channel_pw(std::string password)
+{
 	m_password = password;
 }
 
@@ -99,4 +102,10 @@ void Channel::broadcast(std::string sender, std::string msg) const
 		if (name != sender)
 			SEND(specification.fd, msg.c_str());
 	}
+}
+
+void Channel::broadcast(const std::string &prefix, const std::string &command, const std::string &params) const
+{
+	for (auto &[name, specification] : m_cl_list)
+		sendERRRPL(specification.fd, prefix, command, params);
 }

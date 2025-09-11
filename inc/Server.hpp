@@ -6,6 +6,7 @@
 #include "Format.hpp"
 #include "Utils.hpp"
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <iostream>
 #include <map>
 #include <numeric>
@@ -77,10 +78,9 @@ class Server
 	// static void send_err();
 	static void find_command(const std::vector<std::string> &token);
 	static void create_channel(const std::vector<std::string> &channel_splits, size_t i, const std::vector<std::string> &password_splits);
-	static void leave_all_channel(const Client &client, const std::string &command = "PART", const std::string &msg = ":Heute ist nicht alle Tage, ich komm wieder keine Frage.");
+	static void leave_all_channel(const Client &client, const std::string &command = "PART", const std::string &msg = "Heute ist nicht alle Tage, ich komm wieder keine Frage.");
 	static void msg_channel(const std::string &channel, const std::string &msg);
 	static void msg_client(const std::string &cl_name, const std::string &msg);
-
 
 	// Utilities
 	static void iter_vec_pfds();
@@ -91,7 +91,7 @@ class Server
 	static bool check_privmsg_input(const std::vector<std::string> &token);
 	static bool check_mode_input(const std::vector<std::string> &token);
 	static bool check_ChaOpCo_input(const std::vector<std::string> &token);
-	static bool check_kick(const std::vector<std::string> &token, std::string &channel_splits, std::string &nick_splits);
+	static bool check_kick(std::string &channel_splits, std::string &nick_splits);
 	static void checkActivity();
 	static void welcomeMessage();
 	static void sendPing(Client &client);

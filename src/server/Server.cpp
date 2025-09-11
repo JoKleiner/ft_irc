@@ -29,6 +29,9 @@ void Server::connect_new_client()
 	struct sockaddr_in cli_addr;
 	socklen_t clilen = sizeof(cli_addr);
 	int client = accept(_sock, (struct sockaddr *)&cli_addr, &clilen);
+#ifdef __APPLE__
+	fcntl(client, F_SETFL, O_NONBLOCK);
+#endif
 	std::cout << "New client connected (FD: " << client << ")" << std::endl;
 	_fds.push_back({client, POLLIN, 0});
 	Client client_class(client);
@@ -64,14 +67,14 @@ void Server::checkActivity()
 		{
 			auto inactive = now - c.get_last_send_time();
 			if ( inactive > std::chrono::minutes(10))
-				server_kick(count, "ERROR :Closing Link: " + c.get_user_whole_str() + " (Ping timeout: 300)\r\n");
+				server_kick(count, "Closing Link: (Ping timeout: 300)");
 			else if(inactive > std::chrono::minutes(5) && !c.get_ping_send())
 				sendPing(c);
 		}
 		else
 		{
 			if (now - c.get_joined_time() > std::chrono::seconds(20))
-				server_kick(count, "ERROR :Closing Link (Connection timeout: 50)\r\n");
+				server_kick(count, "Closing Link (Connection timeout: 50)");
 		}
 	}
 }
