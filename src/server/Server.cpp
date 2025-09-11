@@ -29,6 +29,9 @@ void Server::connect_new_client()
 	struct sockaddr_in cli_addr;
 	socklen_t clilen = sizeof(cli_addr);
 	int client = accept(_sock, (struct sockaddr *)&cli_addr, &clilen);
+#ifdef __APPLE__
+	fcntl(client, F_SETFL, O_NONBLOCK);
+#endif
 	std::cout << "New client connected (FD: " << client << ")" << std::endl;
 	_fds.push_back({client, POLLIN, 0});
 	Client client_class(client);

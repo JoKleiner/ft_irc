@@ -6,6 +6,7 @@
 #include "Format.hpp"
 #include "Utils.hpp"
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <iostream>
 #include <map>
 #include <numeric>
@@ -81,7 +82,6 @@ class Server
 	static void msg_channel(const std::string &channel, const std::string &msg);
 	static void msg_client(const std::string &cl_name, const std::string &msg);
 
-
 	// Utilities
 	static void iter_vec_pfds();
 	static void connect_new_client();
@@ -91,7 +91,7 @@ class Server
 	static bool check_privmsg_input(const std::vector<std::string> &token);
 	static bool check_mode_input(const std::vector<std::string> &token);
 	static bool check_ChaOpCo_input(const std::vector<std::string> &token);
-	static bool check_kick(const std::vector<std::string> &token, std::string &channel_splits, std::string &nick_splits);
+	static bool check_kick(std::string &channel_splits, std::string &nick_splits);
 	static void checkActivity();
 	static void welcomeMessage();
 	static void sendPing(Client &client);

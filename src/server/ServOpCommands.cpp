@@ -24,7 +24,7 @@ bool Server::check_ChaOpCo_input(const std::vector<std::string> &token)
 	return true;
 }
 
-bool Server::check_kick(const std::vector<std::string> &token, std::string &channel, std::string &nick_splits)
+bool Server::check_kick(std::string &channel, std::string &nick_splits)
 {
 	auto chan_ele = _channels.find(channel);
 	if (chan_ele == _channels.end())
@@ -61,7 +61,7 @@ void Server::kick(const std::vector<std::string> &token)
 		if (channel_splits.size() != 1)
 			channel = channel_splits[i];
 
-		if (!check_kick(token, channel, nick_splits[i]))
+		if (!check_kick(channel, nick_splits[i]))
 			return;
 
 		Channel &chan = _channels.find(channel)->second;
