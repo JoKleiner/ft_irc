@@ -2,7 +2,6 @@ SRC_DIR := src
 OBJ_DIR := obj
 CC := c++
 CFLAGS := -Wall -Wextra -Werror -Wshadow -std=c++17
-IFLAGS := -Iinclude
 
 # Executable setup
 NAME := bot
@@ -19,7 +18,7 @@ $(NAME): $(OBJ_FILES)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Other rules
 clean:
