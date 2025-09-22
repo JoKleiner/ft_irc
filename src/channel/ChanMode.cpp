@@ -25,14 +25,14 @@ void Channel::TopicMode(const std::vector<std::string> &token, const Client &cli
 	send_channel_mode(token, client, "t");
 }
 
-bool check_channel_pw(std::string line, const Client &client)
+bool check_channel_pw(std::string line)
 {
 	if (line.size() < 2 || line.size() >= 32)
-		return (sendRplErr(client, SERVERNAME, "461", "JOIN :Not enough parameters"), false);
+		return (false);
 
 	for (size_t i = 0; i < line.size(); i++)
 		if (!std::isprint(line[i]) || line[i] == ' ')
-		return (sendRplErr(client, SERVERNAME, "461", "JOIN :Not enough parameters"), false);
+		return (false);
 	
 	return true;
 }
@@ -46,8 +46,8 @@ void Channel::KeyMode(const std::vector<std::string> &token, const Client &clien
 	}
 	else if (token.size() < mode_count + 1)
 		sendRplErr(client, SERVERNAME, "461", "MODE :Not enough parameters");
-	else if (!check_channel_pw(token[mode_count], client))
-		return ;
+	else if (!check_channel_pw(token[mode_count]))
+		sendRplErr(client, SERVERNAME, "461", "MODE :Not enough parameters");
 	else
 	{
 		m_password = token[mode_count];

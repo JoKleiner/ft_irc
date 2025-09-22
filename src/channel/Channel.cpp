@@ -50,11 +50,11 @@ void Channel::join(Client client, std::string channel_pw)
 	if (m_cl_list.find(client.get_nick()) != m_cl_list.end())
 		ChannelWelcomeMessage(client);
 	else if (m_invite_only && inv_client == m_invite_list.end())
-		sendRplErr(client, SERVERNAME, "473", get_channel_name() + ":Cannot join channel (+i)");
+		sendRplErr(client, SERVERNAME, "473", get_channel_name() + " :Cannot join channel (+i)");
 	else if (m_chan_limit != 0 && m_cl_list.size() >= m_chan_limit)
-		sendRplErr(client, SERVERNAME, "471", get_channel_name() + ":Cannot join channel (+l)");
+		sendRplErr(client, SERVERNAME, "471", get_channel_name() + " :Cannot join channel (+l)");
 	else if (channel_pw != m_password)
-		sendRplErr(client, SERVERNAME, "475", get_channel_name() + ":Cannot join channel (+k)");
+		sendRplErr(client, SERVERNAME, "475", get_channel_name() + " :Cannot join channel (+k)");
 	else
 	{
 		client_speci client_spec;

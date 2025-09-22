@@ -8,7 +8,7 @@
 #include <vector>
 #include <regex>
 
-bool check_channel_pw(std::string line, const Client &client);
+bool check_channel_pw(std::string line);
 
 struct client_speci
 {
