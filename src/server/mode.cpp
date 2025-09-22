@@ -4,16 +4,16 @@
 bool Server::check_mode_input(const std::vector<std::string> &token)
 {
 	if (token.size() < 2)
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "461", "MODE :Not enough parameters"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "461", "MODE :Not enough parameters"), false);
 
 	auto chan_ele = _channels.find(token[1]);
 	if (chan_ele == _channels.end())
-		return (sendERRRPL(_clients[_iter], SERVERNAME, "403", token[1] + " :No such channel"), false);
+		return (sendRplErr(_clients[_iter], SERVERNAME, "403", token[1] + " :No such channel"), false);
 
 	if (token.size() > 2)
 	{
 		if (token[2].size() < 2 || (token[2][0] != '+' && token[2][0] != '-'))
-			return (sendERRRPL(_clients[_iter], SERVERNAME, "472", std::string("") + token[2][0] + " :is unknown mode char to me for " + token[1]), false);
+			return (sendRplErr(_clients[_iter], SERVERNAME, "472", std::string("") + token[2][0] + " :is unknown mode char to me for " + token[1]), false);
 
 		for (size_t i = 1; i < token[2].size(); i++)
 		{
@@ -22,7 +22,7 @@ bool Server::check_mode_input(const std::vector<std::string> &token)
 			case 'i': case 't': case 'k': case 'o': case 'l':
 				break;
 			default:
-				return (sendERRRPL(_clients[_iter], SERVERNAME, "472", std::string("") + token[2][i] + " :is unknown mode char to me for " + token[1]), false);
+				return (sendRplErr(_clients[_iter], SERVERNAME, "472", std::string("") + token[2][i] + " :is unknown mode char to me for " + token[1]), false);
 			}
 		}
 
@@ -30,10 +30,10 @@ bool Server::check_mode_input(const std::vector<std::string> &token)
 		auto clie_ele = clie_list.find(_clients[_iter].get_nick());
 
 		if (clie_ele == clie_list.end())
-			return (sendERRRPL(_clients[_iter], SERVERNAME, "442", token[1] + " :You're not on that channel"), false);
+			return (sendRplErr(_clients[_iter], SERVERNAME, "442", token[1] + " :You're not on that channel"), false);
 
 		if (!clie_ele->second.ch_operator)
-			return (sendERRRPL(_clients[_iter], SERVERNAME, "482", token[1] + " :You're not channel operator"), false);
+			return (sendRplErr(_clients[_iter], SERVERNAME, "482", token[1] + " :You're not channel operator"), false);
 	}
 	return true;
 }

@@ -1,7 +1,7 @@
 
 #include "Utils.hpp"
 
-void sendERRRPL(const Client &target, const std::string &prefix, const std::string &command, const std::string &params)
+void sendRplErr(const Client &target, const std::string &prefix, const std::string &command, const std::string &params)
 {
 	if (std::all_of(command.begin(), command.end(), [](char c) { return std::isdigit(c); }))
 		SEND(target.get_fd(), (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str());
@@ -10,7 +10,7 @@ void sendERRRPL(const Client &target, const std::string &prefix, const std::stri
 	std::cout << (":" + prefix + " " + command + " " + (target.get_nick().empty() ? "*" : target.get_nick()) + " " + params + "\r\n").c_str();
 }
 
-void sendERRRPL(const int &target, const std::string &prefix, const std::string &command, const std::string &params)
+void sendRplErr(const int &target, const std::string &prefix, const std::string &command, const std::string &params)
 {
 	SEND(target, (":" + prefix + " " + command + " " + params + "\r\n").c_str());
 	std::cout << (":" + prefix + " " + command + " " + params + "\r\n").c_str();
@@ -51,20 +51,18 @@ std::vector<std::string> token_message(std::string line)
 	return (vec_token);
 }
 
-std::vector<std::string> split(std::string str, std::string cha)
+std::vector<std::string> split(std::string str, std::string deli)
 {
-	size_t pos = 0;
-	size_t comma;
+	size_t start = 0;
+	size_t pos;
 	std::vector<std::string> split;
 
-	while ((comma = str.find(cha, pos)) != std::string::npos)
+	while ((pos = str.find(deli, start)) != std::string::npos)
 	{
-		std::string line = str.substr(pos, comma - pos);
-		pos = comma + 1;
-		split.push_back(line);
+		split.push_back(str.substr(start, pos - start));
+		start = pos + 1;
 	}
-	std::string line = str.substr(pos, comma - pos);
-	split.push_back(line);
+	split.push_back(str.substr(start, pos - start));
 	return (split);
 }
 
