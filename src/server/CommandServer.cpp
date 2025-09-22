@@ -15,6 +15,16 @@ void Server::pass(const std::vector<std::string> &token)
 
 void Server::nick(const std::vector<std::string> &token)
 {
+	if (_clients[_iter].registered())
+	{
+		for (auto it = _channels.begin(); it != _channels.end(); ++it)
+		{
+			if (it->second.get_cha_cl_list().count(_clients[_iter].get_nick()))
+				it->second.broadcast(_clients[_iter].get_user_whole_str(), "NICK", token[1]);
+		}
+		_clients[_iter].set_nick(token[1]);
+		return;
+	}
 	if (!_clients[_iter].pw_set())
 		sendRplErr(_clients[_iter], SERVERNAME, "451", ":Password required");
 	else if (token.size() < 2)
@@ -38,7 +48,7 @@ void Server::user(const std::vector<std::string> &token)
 	else if (!_clients[_iter].get_user().empty())
 		sendRplErr(_clients[_iter], SERVERNAME, "462", ":Unauthorized command (already registered)");
 	else if (token.size() < 5)
-		sendRplErr(_clients[_iter], SERVERNAME, "461", ":Not enough parameters");
+		sendRplErr(_clients[_iter], SERVERNAME, "461", "USER :Not enough parameters");
 	else
 	{
 		if (!std::regex_match(token[1], std::regex(FMT_USER)))

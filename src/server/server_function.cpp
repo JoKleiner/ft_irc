@@ -10,16 +10,9 @@ bool Server::checkNickname(const std::string &n_name)
 	return (true);
 }
 
-void Server::server_kick(size_t user, const std::string &reason)
+void Server::server_kick(size_t user)
 {
 	std::cout << "Client disconnected (FD: " << _fds[user].fd << ")" << std::endl;
-	if (reason.empty())
-		Server::leave_all_channel(_clients[user], "QUIT");
-	else
-	{
-		Server::leave_all_channel(_clients[user], reason);
-		SEND(_clients[user].get_fd(), ("Error :" + reason + "\n\r").c_str());
-	}
 	close(_fds[user].fd);
 	_fds.erase(_fds.begin() + user);
 	_clients.erase(_clients.begin() + user);

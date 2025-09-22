@@ -45,7 +45,7 @@ class Server
 	static void run();
 
 	static bool checkNickname(const std::string &un);
-	static void server_kick(size_t user, const std::string &reason = "");
+	static void server_kick(size_t user);
 
   private:
 	static size_t _iter;

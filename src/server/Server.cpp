@@ -1,5 +1,6 @@
 
 #include "Server.hpp"
+#include <random>
 
 int Server::_sock = 0;
 size_t Server::_iter = 0;
@@ -13,10 +14,11 @@ void Server::client_message()
 {
 	std::string client_mssg;
 	if (!read_message(client_mssg, _fds[_iter].fd))
-		return ;
+		return;
 
 	if (client_mssg.empty())
 	{
+		leave_all_channel(_clients[_iter]);
 		server_kick(_iter);
 		_iter--;
 	}
@@ -66,15 +68,19 @@ void Server::checkActivity()
 		if (c.registered())
 		{
 			auto inactive = now - c.get_last_send_time();
-			if ( inactive > std::chrono::minutes(10))
-				server_kick(count, "Closing Link: (Ping timeout: 300)");
-			else if(inactive > std::chrono::minutes(5) && !c.get_ping_send())
+			if (inactive > std::chrono::minutes(10))
+			{
+				leave_all_channel(_clients[count], "QUIT", "Closing Link (Connection timeout: 600)");
+				SEND(_clients[count].get_fd(), "ERROR :Closing Link (Connection timeout: 600)");
+				server_kick(count);
+			}
+			else if (inactive > std::chrono::minutes(5) && !c.get_ping_send())
 				sendPing(c);
 		}
-		else
+		else if (now - c.get_joined_time() > std::chrono::seconds(20))
 		{
-			if (now - c.get_joined_time() > std::chrono::seconds(20))
-				server_kick(count, "Closing Link (Connection timeout: 50)");
+			SEND(_clients[count].get_fd(), "ERROR :Closing Link (Connection timeout: 50)");
+			server_kick(count);
 		}
 	}
 }
@@ -99,10 +105,7 @@ void Server::serverLoop()
 void Server::cleanup()
 {
 	for (auto &fd : _fds)
-	{
-		if (fd.fd != -1)
-			close(fd.fd);
-	}
+		close(fd.fd);
 	close(_sock);
 }
 
@@ -114,20 +117,18 @@ void Server::run()
 
 void Server::welcomeMessage()
 {
+	static std::random_device dev;
+	static std::mt19937 mt(dev());
+	static std::uniform_int_distribution<unsigned int> dist (0, sizeof(messages) / sizeof(*messages) - 1);
 	_clients[_iter].set_user_whole_str(_clients[_iter].get_nick() + "!" + _clients[_iter].get_user() + "@" + _clients[_iter].get_addr());
 	sendRplErr(_clients[_iter], SERVERNAME, "001", RPL_WELCOME);
 	sendRplErr(_clients[_iter], SERVERNAME, "002", RPL_YOURHOST);
 	sendRplErr(_clients[_iter], SERVERNAME, "003", RPL_CREATED);
 	sendRplErr(_clients[_iter], SERVERNAME, "004", RPL_MYINFO);
 	sendRplErr(_clients[_iter], SERVERNAME, "375", ":- " SERVERNAME " Message of the day - ");
-	sendRplErr(_clients[_iter], SERVERNAME, "372", ":-  _______________________________________");
-	sendRplErr(_clients[_iter], SERVERNAME, "372", ":- / Penguin Trivia #46:                   \\");
-	sendRplErr(_clients[_iter], SERVERNAME, "372", ":- |                                       |");
-	sendRplErr(_clients[_iter], SERVERNAME, "372", ":- | Animals who are not penguins can only |");
-	sendRplErr(_clients[_iter], SERVERNAME, "372", ":- | wish they were.                       |");
-	sendRplErr(_clients[_iter], SERVERNAME, "372", ":- |                                       |");
-	sendRplErr(_clients[_iter], SERVERNAME, "372", ":- \\ -- Chicago Reader 10/15/82            /");
-	sendRplErr(_clients[_iter], SERVERNAME, "372", ":-  ---------------------------------------");
+	auto bubble = getBubble(messages[dist(mt)]);
+	for(auto &b :bubble)
+		sendRplErr(_clients[_iter], SERVERNAME, "372", ":- " + b);
 	sendRplErr(_clients[_iter], SERVERNAME, "372", ":- \\                             .       .");
 	sendRplErr(_clients[_iter], SERVERNAME, "372", ":-  \\                           / `.   .' \" ");
 	sendRplErr(_clients[_iter], SERVERNAME, "372", ":-   \\                  .---.  <    > <    >  .---.");
