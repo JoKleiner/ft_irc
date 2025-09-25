@@ -73,28 +73,23 @@ std::map<std::string, client_speci> &Channel::get_cha_cl_list() {
 	return (m_cl_list);
 }
 
-const std::string &Channel::get_channel_name() const
-{
+const std::string &Channel::get_channel_name() const {
 	return (m_name);
 }
 
-const std::string &Channel::get_topic() const
-{
+const std::string &Channel::get_topic() const {
 	return (m_topic);
 }
 
-const bool &Channel::get_topic_op() const
-{
+const bool &Channel::get_topic_op() const {
 	return (m_topic_operat);
 }
 
-void Channel::set_channel_pw(std::string password)
-{
+void Channel::set_channel_pw(std::string password) {
 	m_password = password;
 }
 
-void Channel::broadcast(std::string sender, std::string msg) const
-{
+void Channel::broadcast(std::string sender, std::string msg) const {
 	std::cout << msg;
 	for (auto &[name, specification] : m_cl_list)
 	{
@@ -103,8 +98,7 @@ void Channel::broadcast(std::string sender, std::string msg) const
 	}
 }
 
-void Channel::broadcast(const std::string &prefix, const std::string &command, const std::string &params) const
-{
+void Channel::broadcast(const std::string &prefix, const std::string &command, const std::string &params) const {
 	for (auto &[name, specification] : m_cl_list)
 		sendRplErr(specification.fd, prefix, command, params);
 }
