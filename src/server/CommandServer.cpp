@@ -15,16 +15,6 @@ void Server::pass(const std::vector<std::string> &token)
 
 void Server::nick(const std::vector<std::string> &token)
 {
-	if (_clients[_iter].registered())
-	{
-		for (auto it = _channels.begin(); it != _channels.end(); ++it)
-		{
-			if (it->second.get_cha_cl_list().count(_clients[_iter].get_nick()))
-				it->second.broadcast(_clients[_iter].get_user_whole_str(), "NICK", token[1]);
-		}
-		_clients[_iter].set_nick(token[1]);
-		return;
-	}
 	if (!_clients[_iter].pw_set())
 		sendRplErr(_clients[_iter], SERVERNAME, "451", ":Password required");
 	else if (token.size() < 2)
@@ -35,9 +25,21 @@ void Server::nick(const std::vector<std::string> &token)
 		sendRplErr(_clients[_iter], SERVERNAME, "433", token[1] + " :Nickname is already in use");
 	else
 	{
-		_clients[_iter].set_nick(token[1]);
 		if (_clients[_iter].registered())
-			Server::welcomeMessage();
+		{
+			for (auto &[name, channel] : _channels)
+			{
+				if (channel.get_cha_cl_list().count(_clients[_iter].get_nick()))
+					channel.broadcast(_clients[_iter].get_user_whole_str(), "NICK", token[1]);
+			}
+			_clients[_iter].set_nick(token[1]);
+		}
+		else
+		{
+			_clients[_iter].set_nick(token[1]);
+			if (_clients[_iter].registered())
+				Server::welcomeMessage();
+		}
 	}
 }
 
