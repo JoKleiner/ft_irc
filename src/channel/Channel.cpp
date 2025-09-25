@@ -69,7 +69,7 @@ void Channel::join(Client client, std::string channel_pw)
 	}
 }
 
-const std::map<std::string, client_speci> &Channel::get_cha_cl_list() const {
+std::map<std::string, client_speci> &Channel::get_cha_cl_list() {
 	return (m_cl_list);
 }
 

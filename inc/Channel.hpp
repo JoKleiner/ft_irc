@@ -28,7 +28,7 @@ class Channel
 	const bool &get_topic_op() const;
 	void set_channel_pw(std::string password);
 	void leave_channel(const Client &client, const std::string &msg = "Heute ist nicht alle Tage, ich komm wieder keine Frage.", const std::string &command = "PART");
-	const std::map<std::string, client_speci> &get_cha_cl_list() const;
+	std::map<std::string, client_speci> &get_cha_cl_list();
 	void broadcast(std::string sender, std::string msg) const;
 	void broadcast(const std::string &prefix, const std::string &command, const std::string &params) const;
 
