@@ -15,6 +15,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <vector>
+#include <signal.h>
 
 #define PASS ct_hash("PASS")
 #define NICK ct_hash("NICK")
