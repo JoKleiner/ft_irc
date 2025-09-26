@@ -25,15 +25,22 @@ void Server::nick(const std::vector<std::string> &token)
 		sendRplErr(_clients[_iter], SERVERNAME, "433", token[1] + " :Nickname is already in use");
 	else
 	{
-		if (_clients[_iter].registered())
-		{
-			for (auto &[name, channel] : _channels)
-			{
-				if (channel.get_cha_cl_list().count(_clients[_iter].get_nick()))
-					channel.broadcast(_clients[_iter].get_user_whole_str(), "NICK", token[1]);
-			}
-			_clients[_iter].set_nick(token[1]);
-		}
+	  if (_clients[_iter].registered())
+	  {
+		  for (auto it = _channels.begin(); it != _channels.end(); ++it)
+		  {
+			  if (it->second.get_cha_cl_list().count(_clients[_iter].get_nick()))
+			  {
+				  it->second.broadcast(_clients[_iter].get_user_whole_str(), "NICK", ":" + token[1]);
+				  client_speci temp = it->second.get_cha_cl_list().find(_clients[_iter].get_nick())->second;
+				  it->second.get_cha_cl_list().erase(_clients[_iter].get_nick());
+				  it->second.get_cha_cl_list().insert({token[1], temp});
+			  }
+		  }
+		  sendRplErr(_clients[_iter].get_fd(), _clients[_iter].get_user_whole_str(), "NICK", ":" + token[1]);
+		  _clients[_iter].set_nick(token[1]);
+		  _clients[_iter].set_user_whole_str(_clients[_iter].get_nick() + "!" + _clients[_iter].get_user() + "@" + _clients[_iter].get_addr());
+	  }
 		else
 		{
 			_clients[_iter].set_nick(token[1]);
