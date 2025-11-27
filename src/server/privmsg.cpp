@@ -7,12 +7,13 @@ void Server::msg_client(const std::string &cl_name, const std::string &msg)
 	{
 		if (iter.get_nick() == cl_name)
 		{
-			sendRplErr(iter, _clients[_iter].get_user_whole_str(), "PRIVMSG", ":" + msg);
+			sendRplErr(iter, _clients[_iter].get_user_whole_str(), "PRIVMSG", iter.get_nick() + " :" + msg);
 			return;
 		}
 	}
 	sendRplErr(_clients[_iter], SERVERNAME, "401", cl_name + " :No such nick");
 }
+
 
 void Server::msg_channel(const std::string &channel, const std::string &msg)
 {
